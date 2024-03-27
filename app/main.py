@@ -39,6 +39,7 @@ app.include_router(users.router)
 # app.include_router(restaurants.router)
 # app.include_router(comments.router)
 # app.include_router(diaries.router)
+# app.include_router(bots.router)
 
 # Optional: Simple root endpoint to check API status
 @app.get("/") 
