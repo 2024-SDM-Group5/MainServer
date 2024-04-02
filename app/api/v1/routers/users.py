@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import UploadFile, File
 from app.schemas.users import UserLogin, UserUpdate, UserPostResult, UserLoginInfo, UserFollow, UserUnfollow, UserDisplay  # Import Pydantic models
 from app.schemas.diaries import SimpleDiary
 from typing import List
+
 
 # from app.models import User as UserModel
 
@@ -18,14 +19,15 @@ async def login(user_data: UserLogin):
         "isNew": False
     }
 
-@router.put("/update", response_model=UserPostResult)
+@router.put("/{id}", response_model=UserPostResult)
 async def update_user(
     user_update: UserUpdate, 
+    id: int = Path(...),
     token: str = Depends(oauth2_scheme),
 ):
     return {
         "success": True,
-        "message": "User data updated successfully",
+        "message": f"User {id} updated successfully",
     }
 
 @router.post("/avatar")
@@ -69,9 +71,9 @@ async def get_my_detail(token: str = Depends(oauth2_scheme)):
     }
 
 @router.get("/{id}", response_model=UserDisplay)
-async def get_user_detail(id: int):
+async def get_user_detail(id: int = Path(...)):
     return {
-        "id": 1,
+        "id": id,
         "displayName": "John Doe",
         "avatarUrl": "https://example.com/avatar.jpg",
         "following": 10,
@@ -82,9 +84,10 @@ async def get_user_detail(id: int):
 
 
 @router.get("/{id}/diaries", response_model=List[SimpleDiary])
-async def get_user_diaries(id: int):
+async def get_user_diaries(id: int = Path(...)):
     diaries = [
         {"id": 1, "imageUrl": "https://example.com/diary1.jpg"},
         {"id": 2, "imageUrl": "https://example.com/diary2.jpg"},
     ]
     return diaries
+

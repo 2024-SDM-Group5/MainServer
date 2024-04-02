@@ -35,7 +35,7 @@ app.add_middleware(
 
 # Include Routers 
 app.include_router(users.router)
-# app.include_router(maps.router)
+app.include_router(maps.router)
 # app.include_router(restaurants.router)
 # app.include_router(comments.router)
 # app.include_router(diaries.router)
