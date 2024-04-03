@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, HttpUrl
-from app.schemas.comments import Comment
+from app.schemas.comments import RestaurantComment
 
 class SimplifiedRestaurant(BaseModel):
     name: str
@@ -10,4 +10,4 @@ class SimplifiedRestaurant(BaseModel):
     favCount: int = Field(0, ge=0)  
 
 class Restaurant(SimplifiedRestaurant):
-    comments: list[Comment]
+    comments: list[RestaurantComment]
