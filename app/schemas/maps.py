@@ -1,12 +1,5 @@
 from pydantic import BaseModel, Field, HttpUrl
-
-class Restaurant(BaseModel):
-    name: str
-    location: dict
-    rating: float = Field(None, ge=0, le=5)  # Optional rating, between 0 and 5
-    placeId: str
-    viewCount: int = Field(0, ge=0)  
-    favCount: int = Field(0, ge=0)  
+from app.schemas.restaurants import SimplifiedRestaurant
 
 class SimplifiedMap(BaseModel):
     """For simplified maps in the Get_Maps listing"""
@@ -19,7 +12,7 @@ class SimplifiedMap(BaseModel):
 
 class CompleteMap(SimplifiedMap):
     """For complete maps in the Get_Maps listing"""
-    restaurants: list[Restaurant]
+    restaurants: list[SimplifiedRestaurant]
     center: dict  # Contains 'lat' and 'lng' fields
 
 class MapCreate(BaseModel):
@@ -41,7 +34,7 @@ class MapDisplay(BaseModel):
     author: str
     viewCount: int
     favCount: int 
-    restaurants: list[Restaurant] 
+    restaurants: list[SimplifiedRestaurant] 
 
 class PostResponse(BaseModel):
     success: bool
