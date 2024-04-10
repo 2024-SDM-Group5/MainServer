@@ -9,7 +9,7 @@ client = openai.OpenAI(
     timeout=60
 )
 
-router = APIRouter(prefix="/api/v1/bot", tags=["bot"])
+router = APIRouter(prefix="/api/v1/bots", tags=["bots"])
 
 @router.post("/question", response_model=BotResponse)
 async def question(user_data: BotRequest):
