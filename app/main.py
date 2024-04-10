@@ -4,7 +4,7 @@ This module initializes a FastAPI application and sets up CORS middleware.
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1.routers import users, maps, restaurants, comments, diaries
+from app.api.v1.routers import users, maps, restaurants, comments, diaries, bots
 # from app.models import database, engine
 from contextlib import asynccontextmanager
 

@@ -21,7 +21,8 @@ async def question(user_data: BotRequest):
                 {"role": "user", "content": user_data.req}
             ]
         )
-        response_content = completion.choices[0].message.content if completion.choices
-        return BotResponse(res=response_content)
+        response_content = completion.choices[0].message.content 
+        if completion.choices:
+            return BotResponse(res=response_content)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
