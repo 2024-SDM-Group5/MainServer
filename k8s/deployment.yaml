@@ -17,3 +17,5 @@ spec:
         image: ghcr.io/2024-sdm-group5/mainserver-service:latest
         ports:
         - containerPort: 80
+      imagePullSecrets:
+        - name: github-registry
