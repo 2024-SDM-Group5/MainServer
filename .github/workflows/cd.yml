@@ -50,4 +50,4 @@ jobs:
 
     - name: Restart Deployment
       run: |
-        kubectl rollout restart deployment demo-service
+        kubectl rollout restart deployment mainserver-service
