@@ -9,6 +9,7 @@ COPY . .
 
 # Install pipenv
 RUN pip install pipenv
+RUN pip install openai
 
 # Install dependencies using Pipenv
 # --system: Install packages into the system Python, not a virtualenv

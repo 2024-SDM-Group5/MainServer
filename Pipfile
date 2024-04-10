@@ -7,7 +7,6 @@ name = "pypi"
 uvicorn = "*"
 fastapi = "*"
 python-multipart = "*"
-openai = "*"
 
 [dev-packages]
 
