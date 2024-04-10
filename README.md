@@ -1,5 +1,6 @@
 First, start your kubectl
 
+
 ```
 cd k8s
 kubectl apply -f fastapi-deployment.yaml
