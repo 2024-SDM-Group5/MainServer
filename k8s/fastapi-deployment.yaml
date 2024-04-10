@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fastapi-deployment
+  name: mainserver-deployment
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: fastapi
+      app: mainserver
   template:
     metadata:
       labels:
-        app: fastapi
+        app: mainserver
     spec:
       containers:
-      - name: fastapi
-        image: enip2473/fastapi-app:v2
+      - name: mainserver
+        image: ghcr.io/2024-sdm-group5/mainserver-service:latest
         ports:
         - containerPort: 80
