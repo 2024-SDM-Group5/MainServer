@@ -3,7 +3,8 @@ kind: Deployment
 metadata:
   name: mainserver-deployment
 spec:
-  replicas: 2
+  replicas: 1
+  revisionHistoryLimit: 1  # Keep only one old Replica Set as backup
   selector:
     matchLabels:
       app: mainserver
@@ -16,6 +17,6 @@ spec:
       - name: mainserver
         image: ghcr.io/2024-sdm-group5/mainserver-service:latest
         ports:
-        - containerPort: 80
+        - containerPort: 8080
       imagePullSecrets:
         - name: github-registry
