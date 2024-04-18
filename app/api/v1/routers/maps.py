@@ -3,15 +3,11 @@ from fastapi.security import OAuth2PasswordBearer
 from typing import List, Optional 
 
 from app.schemas.maps import MapCreate, MapUpdate, SimplifiedMap, CompleteMap, PostResponse, PutResponse
+from app.dependencies.auth import get_current_user
+from app.schemas.users import UserLoginInfo
 
 router = APIRouter(prefix="/api/v1/maps", tags=["maps"])
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-def get_current_user_id(token: str = Depends(oauth2_scheme)) -> int:
-    return 1  
-
-# --- Get_Maps ---
 @router.get("", response_model=List[SimplifiedMap])
 async def get_maps(
     orderBy: str = Query("favCount", enum=["favCount", "createTime"]),
@@ -53,11 +49,11 @@ async def get_maps(
 
 # --- Create_Map ---
 @router.post("", response_model=PostResponse, status_code=201)
-async def create_map(map_data: MapCreate, user_id: int = Depends(get_current_user_id)):
+async def create_map(map_data: MapCreate, user: UserLoginInfo = Depends(get_current_user)):
     new_map_id = 1
     return {
         "success": True,
-        "message": f"User {user_id} created map number {new_map_id}",
+        "message": f"User {user.userId} created map number {new_map_id}",
     }
 
 # --- Single_Map ---
@@ -108,7 +104,7 @@ async def get_single_map(id: int = Path(...)):
 async def modify_map(
     map_data: MapUpdate, 
     id: int = Path(...),
-    user_id: int = Depends(get_current_user_id)
+    user: UserLoginInfo = Depends(get_current_user)
 ):
     return {
         "success": True,
@@ -118,7 +114,7 @@ async def modify_map(
 
 # --- Delete_Map ---
 @router.delete("/{id}", response_model=PostResponse)
-async def delete_map(id: int = Path(...), user_id: int = Depends(get_current_user_id)):
+async def delete_map(id: int = Path(...), user: UserLoginInfo = Depends(get_current_user)):
     return {
         "success": True,
         "message": f"Map number {id} deleted successfully",
@@ -126,17 +122,17 @@ async def delete_map(id: int = Path(...), user_id: int = Depends(get_current_use
 
 # --- Favorite_Map ---
 @router.post("/{id}/favorites", response_model=PostResponse)
-async def favorite_map(id: int = Path(...), user_id: int = Depends(get_current_user_id)):
+async def favorite_map(id: int = Path(...), user: UserLoginInfo = Depends(get_current_user)):
     return {
         "success": True,
-        "message": f"{user_id} has favorited map number {id}",
+        "message": f"{user.userId} has favorited map number {id}",
     }
 
 
 # --- Unfavorite_Map ---
 @router.delete("/{id}/favorites", response_model=PostResponse)
-async def unfavorite_map(id: int = Path(...), user_id: int = Depends(get_current_user_id)):
+async def unfavorite_map(id: int = Path(...), user: UserLoginInfo = Depends(get_current_user)):
     return {
         "success": True,
-        "message": f"{user_id} has unfavorited map number {id}",
+        "message": f"{user.userId} has unfavorited map number {id}",
     }
