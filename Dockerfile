@@ -1,5 +1,7 @@
 # Use an official Python runtime as a parent image
 FROM python:3.12-slim
+RUN apt-get update \
+    && apt-get -y install libpq-dev gcc
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
