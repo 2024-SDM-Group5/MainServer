@@ -4,6 +4,7 @@ from fastapi import UploadFile, File
 from app.schemas.users import UserLogin, UserUpdate, UserPostResult, UserLoginInfo, UserFollow, UserUnfollow, UserDisplay  # Import Pydantic models
 from app.schemas.diaries import SimpleDiary
 from typing import List
+from app.dependencies.auth import get_current_user
 
 
 # from app.models import User as UserModel
@@ -14,10 +15,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 @router.post("/login", response_model=UserLoginInfo)
 async def login(user_data: UserLogin):
-    return {
-        "id": 1,
-        "isNew": False
-    }
+    user = await get_current_user(user_data.idToken)
+    return user
 
 @router.put("/{id}", response_model=UserPostResult)
 async def update_user(

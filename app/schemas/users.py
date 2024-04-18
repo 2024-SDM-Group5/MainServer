@@ -4,7 +4,7 @@ class UserLogin(BaseModel):
     idToken: str = Field(..., description="Token received from Google OAuth2")
 
 class UserLoginInfo(BaseModel):
-    id: int
+    userId: int
     isNew: bool
 
 class UserUpdate(BaseModel):
