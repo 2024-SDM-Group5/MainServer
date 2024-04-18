@@ -9,7 +9,7 @@ client = openai.OpenAI(
     timeout=60
 )
 
-router = APIRouter(prefix="/api/v1/bot", tags=["bot"])
+router = APIRouter(prefix="/api/v1/bots", tags=["bots"])
 
 @router.post("/question", response_model=BotResponse)
 async def question(user_data: BotRequest):
@@ -21,7 +21,8 @@ async def question(user_data: BotRequest):
                 {"role": "user", "content": user_data.req}
             ]
         )
-        response_content = completion.choices[0].message.content if completion.choices
-        return BotResponse(res=response_content)
+        response_content = completion.choices[0].message.content 
+        if completion.choices:
+            return BotResponse(res=response_content)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
