@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from typing import List, Optional 
 
 from app.schemas.maps import MapCreate, MapUpdate, SimplifiedMap, CompleteMap, PostResponse, PutResponse
-from app.dependencies.auth import get_current_user
+from app.dependencies.auth import get_current_user, get_optional_user
 from app.schemas.users import UserLoginInfo
 
 router = APIRouter(prefix="/api/v1/maps", tags=["maps"])
@@ -58,7 +58,7 @@ async def create_map(map_data: MapCreate, user: UserLoginInfo = Depends(get_curr
 
 # --- Single_Map ---
 @router.get("/{id}", response_model=CompleteMap)
-async def get_single_map(id: int = Path(...)):
+async def get_single_map(id: int = Path(...), user: Optional[UserLoginInfo] = Depends(get_optional_user)):
     map_data = {
         "id": 11,
         "name": "台北飲料地圖",
@@ -97,9 +97,11 @@ async def get_single_map(id: int = Path(...)):
                 "viewCount": 400,
                 "favCount": 100,
             }
-        ]
+        ],
+        "hasFavorited": False
     }
-
+    if user:
+        map_data["hasFavorited"] = True
     return map_data
 
 
