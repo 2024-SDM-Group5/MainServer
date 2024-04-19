@@ -77,6 +77,8 @@ async def get_single_map(id: int = Path(...)):
                     "lat": 25.0329694,
                     "lng": 121.5654177
                 },
+                "address": "台北市大安區辛亥路二段170號",
+                "telephone": "02 1234 5554",
                 "rating": 4.5,
                 "placeId": "asdjglsakjgka",
                 "viewCount": 400,
@@ -88,6 +90,8 @@ async def get_single_map(id: int = Path(...)):
                     "lat": 25.0329694,
                     "lng": 121.5654177
                 },
+                "address": "台北市大安區辛亥路二段170號",
+                "telephone": "02 1234 5554",
                 "rating": 4.2,
                 "placeId": "wewtwatqawt",
                 "viewCount": 400,

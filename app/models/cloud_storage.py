@@ -1,10 +1,10 @@
 from google.cloud import storage
 from uuid import uuid4
-## TODO: Need to set the credentials in k8s deployment
 async def save_file_to_gcs(file) -> str:
     """
     Uploads a file to Google Cloud Storage and returns the file URL.
     """
+    ## TODO: Need to set the credentials in k8s deployment
     client = storage.Client()
     bucket_name = 'image_bucket_map'
     bucket = client.bucket(bucket_name)
