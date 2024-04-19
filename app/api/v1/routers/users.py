@@ -29,7 +29,7 @@ async def update_user(
 @router.post("/avatar")
 async def upload_avatar(avatar: UploadFile = File(...)):
     return {
-        "avatarUrl": "https://testing.img",
+        "avatarUrl": "https://picsum.photos/200",
     }
 
 @router.post("/follow", response_model=UserPostResult)
@@ -59,7 +59,7 @@ async def get_my_detail(user: UserLoginInfo = Depends(get_current_user)):
     return {
         "id": 1,
         "displayName": "John Doe",
-        "avatarUrl": "https://example.com/avatar.jpg",
+        "avatarUrl": "https://picsum.photos/200",
         "following": 10,
         "followed": 20,
         "mapId": 123,
@@ -71,7 +71,7 @@ async def get_user_detail(id: int = Path(...)):
     return {
         "id": id,
         "displayName": "John Doe",
-        "avatarUrl": "https://example.com/avatar.jpg",
+        "avatarUrl": "https://picsum.photos/200",
         "following": 10,
         "followed": 20,
         "mapId": 123,
@@ -82,8 +82,8 @@ async def get_user_detail(id: int = Path(...)):
 @router.get("/{id}/diaries", response_model=List[SimpleDiary])
 async def get_user_diaries(id: int = Path(...)):
     diaries = [
-        {"id": 1, "imageUrl": "https://example.com/diary1.jpg"},
-        {"id": 2, "imageUrl": "https://example.com/diary2.jpg"},
+        {"id": 1, "imageUrl": "https://picsum.photos/200"},
+        {"id": 2, "imageUrl": "https://picsum.photos/200"},
     ]
     return diaries
 
