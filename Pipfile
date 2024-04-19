@@ -10,6 +10,7 @@ python-multipart = "*"
 openai = "*"
 sqlalchemy = "*"
 psycopg2 = "*"
+google-cloud-storage = "*"
 
 [dev-packages]
 
