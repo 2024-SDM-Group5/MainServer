@@ -88,3 +88,13 @@ async def get_user_diaries(id: int = Path(...)):
     ]
     return diaries
 
+
+@router.get("/{id}/collections", response_model=List[SimpleDiary])
+async def get_user_collections(id: int = Path(...)):
+    diaries = [
+        {"id": 4, "imageUrl": "https://picsum.photos/200"},
+        {"id": 6, "imageUrl": "https://picsum.photos/200"},
+    ]
+    return diaries
+
+
