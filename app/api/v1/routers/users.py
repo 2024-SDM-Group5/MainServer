@@ -69,15 +69,6 @@ async def get_my_detail(user: UserLoginInfo = Depends(get_current_user)):
     }
 
 
-@router.get("/collections", response_model=List[SimpleDiary])
-async def get_user_collections(user: UserLoginInfo = Depends(get_current_user)):
-    diaries = [
-        {"id": 4, "imageUrl": "https://picsum.photos/200"},
-        {"id": 6, "imageUrl": "https://picsum.photos/200"},
-    ]
-    return diaries
-
-
 @router.get("/{id}", response_model=UserDisplay)
 async def get_user_detail(id: int = Path(...), user: Optional[UserLoginInfo] = Depends(get_optional_user)):
     user_detail = {

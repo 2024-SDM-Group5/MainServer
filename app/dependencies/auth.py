@@ -1,7 +1,6 @@
 from fastapi import Depends, HTTPException, status, Header
 from fastapi.security import OAuth2PasswordBearer
 from app.schemas.users import UserLoginInfo
-from typing import Optional
 import httpx
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -25,6 +24,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserLoginInfo
         )
         
         if response.status_code != 200:
+            # For testing
+            # return UserLoginInfo(userId=1, isNew=False)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authentication credentials",
