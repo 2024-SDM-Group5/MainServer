@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
-from fastapi.security import OAuth2PasswordBearer
 from fastapi import UploadFile, File
 from app.schemas.users import UserLogin, UserUpdate, UserPostResult, UserLoginInfo, UserFollow, UserUnfollow, UserDisplay  # Import Pydantic models
 from app.schemas.diaries import SimpleDiary
@@ -11,8 +10,6 @@ from app.dependencies.auth import get_current_user
 
 router = APIRouter(prefix="/api/v1/users", tags=["user"])
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
 @router.post("/login", response_model=UserLoginInfo)
 async def login(user_data: UserLogin):
     user = await get_current_user(user_data.idToken)
@@ -22,7 +19,7 @@ async def login(user_data: UserLogin):
 async def update_user(
     user_update: UserUpdate, 
     id: int = Path(...),
-    token: str = Depends(oauth2_scheme),
+    user: UserLoginInfo = Depends(get_current_user),
 ):
     return {
         "success": True,
@@ -38,7 +35,7 @@ async def upload_avatar(avatar: UploadFile = File(...)):
 @router.post("/follow", response_model=UserPostResult)
 async def follow_user(
     user_follow: UserFollow, 
-    token: str = Depends(oauth2_scheme),
+    user: UserLoginInfo = Depends(get_current_user)
 ):
     return {
         "success": True,
@@ -49,7 +46,7 @@ async def follow_user(
 @router.post("/unfollow", response_model=UserPostResult)
 async def unfollow_user(
     user_unfollow: UserUnfollow, 
-    token: str = Depends(oauth2_scheme),
+    user: UserLoginInfo = Depends(get_current_user)
 ):
     return {
         "success": True,
@@ -58,7 +55,7 @@ async def unfollow_user(
 
 
 @router.get("/me", response_model=UserDisplay)
-async def get_my_detail(token: str = Depends(oauth2_scheme)):
+async def get_my_detail(user: UserLoginInfo = Depends(get_current_user)):
     return {
         "id": 1,
         "displayName": "John Doe",

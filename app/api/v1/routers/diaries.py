@@ -4,17 +4,11 @@ from typing import List, Optional
 
 from app.schemas.diaries import (
     DiaryCreate, DiaryUpdate, DiaryDisplay, DiaryResponse)
-
+from app.dependencies.auth import get_current_user
+from app.schemas.users import UserLoginInfo
 router = APIRouter(prefix="/api/v1/diaries", tags=["diaries"])
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-# Helper function (replace with your actual authentication logic)
-def get_current_user_id(token: str = Depends(oauth2_scheme)) -> int:
-    # Replace with your authentication logic
-    return 1  
-
-# --- Diaries_Get  ---
 @router.get("", response_model=List[DiaryDisplay])
 async def get_diaries(
     offset: int = Query(0, ge=0), 
@@ -47,12 +41,12 @@ async def get_diaries(
 @router.post("", response_model=DiaryResponse, status_code=201)
 async def create_diary(
     diary_data: DiaryCreate, 
-    user_id: int = Depends(get_current_user_id)
+    user: UserLoginInfo = Depends(get_current_user)
 ):  
     new_diary_id = 1
     return {
         "success": True, 
-        "message": f"User {user_id} created diary number {new_diary_id}"
+        "message": f"User {user.userId} created diary number {new_diary_id}"
     }
 
 # --- Single_Diary ---
@@ -82,20 +76,20 @@ async def get_single_diary(id: int = Path(...)):
 async def update_diary(
     diary_data: DiaryUpdate, 
     id: int = Path(...), 
-    user_id: int = Depends(get_current_user_id)
+    user: UserLoginInfo = Depends(get_current_user)
 ):
     return {
         "success": True, 
-        "message": f"User {user_id} updated diary number {id}"
+        "message": f"User {user.userId} updated diary number {id}"
     }
 
 # --- Diary_Delete ---
 @router.delete("/{id}", response_model=DiaryResponse)
 async def delete_diary(
     id: int = Path(...), 
-    user_id: int = Depends(get_current_user_id)
+    user: UserLoginInfo = Depends(get_current_user)
 ):
     return {
         "success": True, 
-        "message": f"User {user_id} deleted diary number {id}"
+        "message": f"User {user.userId} deleted diary number {id}"
     }
