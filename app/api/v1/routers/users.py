@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from fastapi import UploadFile, File
+from typing import Optional
 from app.schemas.users import UserLogin, UserUpdate, UserPostResult, UserLoginInfo, UserFollow, UserUnfollow, UserDisplay  # Import Pydantic models
 from app.schemas.diaries import SimpleDiary
 from typing import List
-from app.dependencies.auth import get_current_user
+from app.dependencies.auth import get_current_user, get_optional_user
 from app.models.cloud_storage import save_file_to_gcs
 
 # from app.models import User as UserModel
@@ -78,16 +79,20 @@ async def get_user_collections(user: UserLoginInfo = Depends(get_current_user)):
 
 
 @router.get("/{id}", response_model=UserDisplay)
-async def get_user_detail(id: int = Path(...)):
-    return {
+async def get_user_detail(id: int = Path(...), user: Optional[UserLoginInfo] = Depends(get_optional_user)):
+    user_detail = {
         "id": id,
         "displayName": "John Doe",
         "avatarUrl": "https://picsum.photos/200",
         "following": 10,
         "followed": 20,
         "mapId": 123,
-        "postCount": 50
+        "postCount": 50,
+        "isFollowing": False
     }
+    if user:
+        user_detail["isFollowing"] = True
+    return user_detail
 
 
 @router.get("/{id}/diaries", response_model=List[SimpleDiary])

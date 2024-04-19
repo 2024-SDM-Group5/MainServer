@@ -23,7 +23,7 @@ class UserDisplay(BaseModel):
     followed: int
     mapId: int | None = Field(None, description="ID of map created by user – if applicable")
     postCount: int
-
+    isFollowing: bool = Field(..., description="Flag indicating if the user is currently being followed by the authenticated user")
 class UserFollow(BaseModel):
     userId: int = Field(..., description="ID of the user who is following")
     followId: int = Field(..., description="ID of the user being followed")
