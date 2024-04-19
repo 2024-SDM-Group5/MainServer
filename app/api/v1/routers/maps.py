@@ -21,7 +21,7 @@ async def get_maps(
         {
             "id": 11,
             "name": "台北飲料地圖",
-            "iconUrl": "https://mypicture/11.png",
+            "iconUrl": "https://picsum.photos/200",
             "author": "enip",
             "viewCount": 441,
             "favCount": 189
@@ -29,7 +29,7 @@ async def get_maps(
         {
             "id": 12,
             "name": "飲料導覽",
-            "iconUrl": "https://mypicture/12.png",
+            "iconUrl": "https://picsum.photos/200",
             "author": "enip",
             "viewCount": 370,
             "favCount": 152
@@ -37,7 +37,7 @@ async def get_maps(
         {
             "id": 13,
             "name": "夜市飲料攻略",
-            "iconUrl": "https://mypicture/13.png",
+            "iconUrl": "https://picsum.photos/200",
             "author": "enip",
             "viewCount": 295,
             "favCount": 117
@@ -62,7 +62,7 @@ async def get_single_map(id: int = Path(...)):
     map_data = {
         "id": 11,
         "name": "台北飲料地圖",
-        "iconUrl": "https://mypicture/11.png",
+        "iconUrl": "https://picsum.photos/200",
         "center": {
             "lat": 25.0329694,
             "lng": 121.5654118

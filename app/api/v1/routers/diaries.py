@@ -18,13 +18,13 @@ async def get_diaries(
         {
             "id": 1,
             "username": "foodieJane",
-            "avatarUrl": "https://myavatar.jpg",
-            "photos": ["https://myphotos.com/diarypic1.jpg", "https://myphotos.com/diarypic2.jpg"],
+            "avatarUrl": "https://picsum.photos/200",
+            "photos": ["https://picsum.photos/200", "https://picsum.photos/200"],
             "content": "Tried this amazing boba place today!",
             "replies": [
                 { 
                     "username": "bobaLover",     
-                    "avatarUrl": "https://myavatar.jpg",
+                    "avatarUrl": "https://picsum.photos/200",
                     "content": "Looks delicious!",
                     "createdAt": 1711987663
                 }
@@ -55,13 +55,13 @@ async def get_single_diary(id: int = Path(...)):
     diary = {
         "id": 1,
         "username": "foodieJane",
-        "avatarUrl": "https://myavatar.jpg",
-        "photos": ["https://myphotos.com/diarypic1.jpg", "https://myphotos.com/diarypic2.jpg"],
+        "avatarUrl": "https://picsum.photos/200",
+        "photos": ["https://picsum.photos/200", "https://picsum.photos/200"],
         "content": "Tried this amazing boba place today!",
         "replies": [
         { 
             "username": "bobaLover",     
-            "avatarUrl": "https://myavatar.jpg",
+            "avatarUrl": "https://picsum.photos/200",
             "content": "Looks delicious!",
             "createdAt": 1711987663
         }
