@@ -46,4 +46,5 @@ jobs:
             --platform managed \
             --region asia-east1 \
             --allow-unauthenticated \
-            --concurrency=100
+            --concurrency=100 \
+            --set-env-vars GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }} \
