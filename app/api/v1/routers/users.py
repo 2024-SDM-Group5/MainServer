@@ -4,7 +4,7 @@ from app.schemas.users import UserLogin, UserUpdate, UserPostResult, UserLoginIn
 from app.schemas.diaries import SimpleDiary
 from typing import List
 from app.dependencies.auth import get_current_user
-from app.models.cloud_storage import save_file_to_gcs
+
 
 # from app.models import User as UserModel
 
@@ -28,9 +28,8 @@ async def update_user(
 
 @router.post("/avatar")
 async def upload_avatar(avatar: UploadFile = File(...)):
-    avatar_url = await save_file_to_gcs(avatar)
     return {
-        "avatarUrl": avatar_url,
+        "avatarUrl": "https://picsum.photos/200",
     }
 
 @router.post("/follow", response_model=UserPostResult)
