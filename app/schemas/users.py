@@ -22,6 +22,7 @@ class UserDisplay(BaseModel):
     following: int
     followed: int
     mapId: int | None = Field(None, description="ID of map created by user – if applicable")
+    postCount: int
 
 class UserFollow(BaseModel):
     userId: int = Field(..., description="ID of the user who is following")
