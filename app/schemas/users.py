@@ -8,7 +8,6 @@ class UserLoginInfo(BaseModel):
     isNew: bool
 
 class UserUpdate(BaseModel):
-    id: int = Field(..., description="User's ID")
     displayName: str | None = Field(None, description="User's display name")
     avatarUrl: str | None = Field(None, description="URL of user's avatar")
 
