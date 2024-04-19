@@ -1,7 +1,6 @@
 import googlemaps
 from dotenv import load_dotenv
 import os
-import asyncio
 from app.schemas.restaurants import Restaurant
 from pathlib import Path
 
@@ -26,11 +25,11 @@ async def get_place_details(place_id):
     gmaps = googlemaps.Client(key=api_key)
     place = gmaps.place(place_id)['result']
     place_id = place['place_id']
-    name = place['name']
-    address = place['formatted_address']
-    telephone = place['formatted_phone_number']
-    rating = place['rating']
     location = place['geometry']['location']
+    name = place.get('name', '')
+    address = place.get('formatted_address', '')
+    telephone = place.get('formatted_phone_number', '')
+    rating = place.get('rating', 0)
     return Restaurant(
         name=name, 
         address=address, 
@@ -40,11 +39,6 @@ async def get_place_details(place_id):
         rating=rating,
         viewCount=0,
         favCount=0,
-        comments=[]
+        comments=[],
+        hasFavorited=False
     )
-
-if __name__ == '__main__':
-    # places = asyncio.run(get_places(25.0329694, 121.5654118, 1000))
-    # print(places)
-    place = asyncio.run(get_place_details("ChIJjfzEsLCrQjQRLJYMdi8QOaM"))
-    print(place)

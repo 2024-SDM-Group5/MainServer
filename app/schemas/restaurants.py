@@ -13,3 +13,4 @@ class SimplifiedRestaurant(BaseModel):
 
 class Restaurant(SimplifiedRestaurant):
     comments: list[RestaurantComment]
+    hasFavorited: bool = Field(..., description="Flag indicating if the restaurant is currently being favorited by the authenticated user")
