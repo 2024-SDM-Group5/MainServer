@@ -1,31 +1,19 @@
 from google.cloud import storage
-import sys
+from uuid import uuid4
 
-def upload_blob(bucket_name, source_file_name, destination_blob_name):
-    """Uploads a file to the bucket."""
-    # The ID of your GCS bucket
-    # bucket_name = "your-bucket-name"
-    # The path to your file to upload
-    # source_file_name = "local/path/to/file"
-    # The ID of your GCS object
-    # destination_blob_name = "storage-object-name"
+async def save_file_to_gcs(file) -> str:
+    """
+    Uploads a file to Google Cloud Storage and returns the file URL.
+    """
+    client = storage.Client()
+    bucket_name = 'image_bucket_map'
+    bucket = client.bucket(bucket_name)
+    blob_name = f"{uuid4()}-{file.filename}"
+    blob = bucket.blob(blob_name)
 
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(destination_blob_name)
-    generation_match_precondition = 0
-
-    blob.upload_from_filename(source_file_name, if_generation_match=generation_match_precondition)
-    blob.make_public()
-
-    print(blob.public_url)
-    print(
-        f"File {source_file_name} uploaded to {destination_blob_name}."
+    blob.upload_from_string(
+        await file.read(),
+        content_type=file.content_type
     )
 
-if __name__ == "__main__":
-    upload_blob(
-        bucket_name=sys.argv[1],
-        source_file_name=sys.argv[2],
-        destination_blob_name=sys.argv[3],
-    )
+    return blob.public_url
