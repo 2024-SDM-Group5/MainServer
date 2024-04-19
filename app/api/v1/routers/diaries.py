@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from app.schemas.diaries import (
     DiaryCreate, DiaryUpdate, DiaryDisplay, DiaryResponse)
-from app.dependencies.auth import get_current_user
+from app.dependencies.auth import get_current_user, get_optional_user
 from app.schemas.users import UserLoginInfo
 router = APIRouter(prefix="/api/v1/diaries", tags=["diaries"])
 
@@ -51,7 +51,7 @@ async def create_diary(
 
 # --- Single_Diary ---
 @router.get("/{id}", response_model=DiaryDisplay)
-async def get_single_diary(id: int = Path(...)):
+async def get_single_diary(id: int = Path(...), user: Optional[UserLoginInfo] = Depends(get_optional_user)):
     diary = {
         "id": 1,
         "username": "foodieJane",
@@ -67,8 +67,11 @@ async def get_single_diary(id: int = Path(...)):
         }
         ],
         "favCount": 25,
-        "createdAt": 1711987662
+        "createdAt": 1711987662,
+        "hasFavorited": False
     }
+    if user:
+        diary["hasFavorited"] = True
     return diary
 
 # --- Diary_Update ---

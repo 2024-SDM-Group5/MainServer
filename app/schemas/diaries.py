@@ -15,6 +15,7 @@ class DiaryDisplay(BaseModel):
     replies: list[Reply] = [] 
     favCount: int = Field(0, ge=0) 
     createdAt: datetime
+    hasFavorited: bool = Field(..., description="Flag indicating if the user is currently being favorited by the authenticated user")
 
 class DiaryCreate(BaseModel):
     userId: int
