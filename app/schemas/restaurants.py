@@ -20,3 +20,7 @@ class PaginatedRestaurantResponse(BaseModel):
 class Restaurant(SimplifiedRestaurant):
     diaries: list[SimpleDiary]
     hasCollected: bool = Field(False, description="Flag indicating if the restaurant is currently being collected by the authenticated user")
+
+class PostResponse(BaseModel):
+    success: bool
+    message: str

@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Path, Depends, HTTPException, Query
-from app.schemas.restaurants import Restaurant, PaginatedRestaurantResponse
+from app.schemas.restaurants import Restaurant, PaginatedRestaurantResponse, PostResponse
 from app.services.places_api import get_place_details
 from app.schemas.users import UserLoginInfo
 from typing import Optional, List
-from app.dependencies.auth import get_optional_user
+from app.dependencies.auth import get_optional_user, get_current_user
 
 router = APIRouter(prefix="/api/v1/restaurants", tags=["restaurants"])
 
@@ -82,3 +82,26 @@ async def get_single_restaurant(place_id: str = Path(...), user: Optional[UserLo
     if user:
         restaurant["hasCollected"] = True
     return restaurant
+
+@router.post("{place_id}/collect", response_model=PostResponse, status_code=201)
+async def collect_diary(
+    place_id: str = Path(...),
+    user: UserLoginInfo = Depends(get_current_user)
+):  
+    return {
+        "success": True, 
+        "message": f"User {user.userId} collected place {place_id}"
+    }
+
+@router.delete("{place_id}/collect", response_model=PostResponse, status_code=201)
+async def uncollect_diary(
+    place_id: str = Path(...),
+    user: UserLoginInfo = Depends(get_current_user)
+):  
+    return {
+        "success": True, 
+        "message": f"User {user.userId} uncollected place {place_id}"
+    }
+
+
+

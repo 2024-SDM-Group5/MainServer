@@ -164,18 +164,16 @@ async def delete_map(id: int = Path(...), user: UserLoginInfo = Depends(get_curr
         "message": f"Map number {id} deleted successfully",
     }
 
-# --- Favorite_Map ---
-@router.post("/{id}/favorites", response_model=PostResponse)
-async def favorite_map(id: int = Path(...), user: UserLoginInfo = Depends(get_current_user)):
+@router.post("/{id}/collect", response_model=PostResponse)
+async def collect_map(id: int = Path(...), user: UserLoginInfo = Depends(get_current_user)):
     return {
         "success": True,
         "message": f"{user.userId} has favorited map number {id}",
     }
 
 
-# --- Unfavorite_Map ---
-@router.delete("/{id}/favorites", response_model=PostResponse)
-async def unfavorite_map(id: int = Path(...), user: UserLoginInfo = Depends(get_current_user)):
+@router.delete("/{id}/collect", response_model=PostResponse)
+async def uncollect_map(id: int = Path(...), user: UserLoginInfo = Depends(get_current_user)):
     return {
         "success": True,
         "message": f"{user.userId} has unfavorited map number {id}",

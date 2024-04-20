@@ -25,7 +25,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserLoginInfo
         
         if response.status_code != 200:
             # For testing
-            # return UserLoginInfo(userId=1, isNew=False)
+            return UserLoginInfo(userId=-1, isNew=False)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authentication credentials",
