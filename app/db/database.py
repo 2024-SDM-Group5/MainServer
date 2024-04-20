@@ -1,21 +1,13 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from core.config import Config
 
-SQLALCHEMY_DATABASE_URL = 'postgresql://myuser:password@db-isgdbpzgoq-de.a.run.app/fastapi_database'
+if not Config.DATABASE_URL:
+    raise ValueError("No DATABASE_URL provided. Set DATABASE_URL environment variable.")
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(Config.DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        print("hi")
-        yield db
-    finally:
-        db.close()
-
-if __name__ == '__main__':
-    get_db()

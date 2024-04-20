@@ -1144,6 +1144,10 @@ DELETE /api/v1/comments/1
         - Username of the diary owner
     - avatarUrl: string
         - The url of the user's avatar
+    - restaurantName: string
+        - The name of the restaurant
+    - restaurantId: string
+        - The placeId of the restaurant
     - photos: string[]
         - Url of photos in the dairy
     - content: string
@@ -1171,11 +1175,15 @@ DELETE /api/v1/comments/1
   {
     "id": 1,
     "username": "foodieJane",
-    "avatarUrl": "https://myavatar.jpg"
+    "avatarUrl": "https://myavatar.jpg",
+    "restaurantName": "寶林茶室",
+    "restaurantId": "ChIJIRh87uyrQjQR9oV3eqzxFJs",
     "photos": ["https://myphotos.com/diarypic1.jpg", "https://myphotos.com/diarypic2.jpg"],
     "content": "Tried this amazing boba place today!",
     "replies": [
       { 
+        "id": 1,
+        "userId": 1,
         "username": "bobaLover",     
         "avatarUrl": "https://myavatar.jpg",
         "content": "Looks delicious!"

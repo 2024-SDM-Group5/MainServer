@@ -7,7 +7,7 @@ load_dotenv(dotenv_path=env_path)
 
 class Config:
     GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
-    
+    DATABASE_URL = os.getenv('DATABASE_URL')
     @staticmethod
     def init_app(app):
         pass
