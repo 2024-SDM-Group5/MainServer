@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field, HttpUrl
 from datetime import datetime
 
 class Reply(BaseModel):
+    id: int
+    authorId: int
     username: str
     avatarUrl: HttpUrl = Field(None)
     content: str
@@ -18,7 +20,7 @@ class DiaryDisplay(BaseModel):
     hasFavorited: bool = Field(..., description="Flag indicating if the user is currently being favorited by the authenticated user")
 
 class DiaryCreate(BaseModel):
-    userId: int
+    restaurantId: int
     photos: list[HttpUrl]
     content: str
 

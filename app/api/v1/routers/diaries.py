@@ -59,7 +59,9 @@ async def get_single_diary(id: int = Path(...), user: Optional[UserLoginInfo] = 
         "photos": ["https://picsum.photos/200", "https://picsum.photos/200"],
         "content": "Tried this amazing boba place today!",
         "replies": [
-        { 
+        {
+            "id": 1,
+            "authorId": 1,
             "username": "bobaLover",     
             "avatarUrl": "https://picsum.photos/200",
             "content": "Looks delicious!",
