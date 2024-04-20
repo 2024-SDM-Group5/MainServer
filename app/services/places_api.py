@@ -26,14 +26,17 @@ async def get_place_details(place_id):
     address = place.get('formatted_address', '')
     telephone = place.get('formatted_phone_number', '')
     rating = place.get('rating', 0)
-    return Restaurant(
-        name=name, 
-        address=address, 
-        placeId=place_id,
-        location=location, 
-        telephone=telephone, 
-        rating=rating,
-        viewCount=0,
-        favCount=0,
-        diaries=[]
-    )
+    return {
+        "name": name, 
+        "address": address, 
+        "placeId": place_id,
+        "location": location, 
+        "telephone": telephone, 
+        "rating": rating,
+        "viewCount": 0,
+        "favCount": 0,
+        "diaries": [],
+        "hasCollected": False,
+        "hasLiked": False,
+        "hasDisliked": False
+    }

@@ -20,7 +20,8 @@ class PaginatedRestaurantResponse(BaseModel):
 class Restaurant(SimplifiedRestaurant):
     diaries: list[SimpleDiary]
     hasCollected: bool = Field(False, description="Flag indicating if the restaurant is currently being collected by the authenticated user")
-
+    hasLiked: bool = Field(False, description="Flag indicating if the restaurant is currently being liked by the authenticated user")
+    hasDisliked: bool = Field(False, description="Flag indicating if the restaurant is currently being disliked by the authenticated user")
 class PostResponse(BaseModel):
     success: bool
     message: str

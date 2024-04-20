@@ -67,20 +67,11 @@ async def get_single_restaurant(place_id: str = Path(...), user: Optional[UserLo
         restaurant = await get_place_details(place_id)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-    # restaurant_data = {
-    #     "name": "Restaurant 1",
-    #     "location": {
-    #         "lat": 25.0329694,
-    #         "lng": 121.5654177
-    #     },
-    #     "rating": 4.5,
-    #     "placeId": "asdjglsakjgka",
-    #     "viewCount": 400,
-    #     "favCount": 100,
-    # }
-    print(restaurant)
     if user:
         restaurant["hasCollected"] = True
+        restaurant["hasLiked"] = True
+    else:
+        restaurant["hasDisliked"] = True
     return restaurant
 
 @router.post("/{place_id}/collect", response_model=PostResponse, status_code=201)
@@ -97,7 +88,7 @@ async def collect_diary(
 async def uncollect_diary(
     place_id: str = Path(...),
     user: UserLoginInfo = Depends(get_current_user)
-):  
+):
     return {
         "success": True, 
         "message": f"User {user.userId} uncollected place {place_id}"
