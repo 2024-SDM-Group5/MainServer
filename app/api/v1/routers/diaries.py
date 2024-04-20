@@ -117,7 +117,7 @@ async def favorite_diary(
         "message": f"User {user.userId} favorited diary number {id}"
     }
 
-@router.delete("/{id}/favorite", response_model=DiaryResponse, status_code=201)
+@router.delete("/{id}/favorite", response_model=DiaryResponse)
 async def unfavorite_diary(
     id: int = Path(...),
     user: UserLoginInfo = Depends(get_current_user)
@@ -137,7 +137,7 @@ async def collect_diary(
         "message": f"User {user.userId} collected diary number {id}"
     }
 
-@router.delete("/{id}/collect", response_model=DiaryResponse, status_code=201)
+@router.delete("/{id}/collect", response_model=DiaryResponse)
 async def uncollect_diary(
     id: int = Path(...),
     user: UserLoginInfo = Depends(get_current_user)

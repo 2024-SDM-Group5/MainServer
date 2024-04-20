@@ -34,25 +34,25 @@ async def upload_avatar(avatar: UploadFile = File(...)):
         "avatarUrl": avatar_url,
     }
 
-@router.post("/follow", response_model=UserPostResult)
+@router.post("/{id}/follow", response_model=UserPostResult, status_code=201)
 async def follow_user(
-    user_follow: UserFollow, 
+    id: int = Path(...),
     user: UserLoginInfo = Depends(get_current_user)
 ):
     return {
         "success": True,
-        "message": f"User with ID {user_follow.userId} is now \
-              following user with ID {user_follow.followId}",
+        "message": f"User with ID {user.userId} is now \
+              following user with ID {id}",
     }
 
-@router.post("/unfollow", response_model=UserPostResult)
+@router.delete("/{id}/follow", response_model=UserPostResult)
 async def unfollow_user(
-    user_unfollow: UserUnfollow, 
+    id: int = Path(...),
     user: UserLoginInfo = Depends(get_current_user)
 ):
     return {
         "success": True,
-        "message": f"User with ID {user_unfollow.userId} has unfollowed user with ID {user_unfollow.followId}",
+        "message": f"User with ID {user.userId} has unfollowed user with ID {id}",
     }
 
 
