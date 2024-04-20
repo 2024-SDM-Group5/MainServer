@@ -95,6 +95,8 @@ async def get_restaurants(
     limit: int = Query(10, ge=1, le=100),
     reverse: bool = Query(False),
     q: Optional[str] = Query(None),
+    sw: Optional[str] = Query(None),
+    ne: Optional[str] = Query(None),
 ):
     restaurants = [
         {
