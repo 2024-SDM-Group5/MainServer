@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, HttpUrl
-from app.schemas.comments import RestaurantComment
+from app.schemas.diaries import DiaryDisplay
 from typing import List
 class SimplifiedRestaurant(BaseModel):
     name: str
@@ -18,5 +18,5 @@ class PaginatedRestaurantResponse(BaseModel):
     offset: int
 
 class Restaurant(SimplifiedRestaurant):
-    comments: list[RestaurantComment]
+    diaries: list[DiaryDisplay]
     hasFavorited: bool = Field(..., description="Flag indicating if the restaurant is currently being favorited by the authenticated user")

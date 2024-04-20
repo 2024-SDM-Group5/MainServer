@@ -2,13 +2,7 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 
 class CommentBase(BaseModel):
-    userId: int 
-    restaurantId: int
-    content: str
-
-class RestaurantComment(BaseModel):
-    userId: int
-    createdAt: int
+    diaryId: int
     content: str
 
 class CommentCreate(CommentBase):

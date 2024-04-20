@@ -77,10 +77,6 @@ async def get_single_restaurant(place_id: str = Path(...), user: Optional[UserLo
     #     "placeId": "asdjglsakjgka",
     #     "viewCount": 400,
     #     "favCount": 100,
-    #     "comments": [
-    #         {"userId": 1, "date": "2024/1/23", "items": ["炒飯"], "content": "不錯", "rating": 5},
-    #         {"userId": 2, "date": "2024/1/23", "items": ["炒麵"], "content": "不好吃", "rating": 1}
-    #     ]
     # }
     print(restaurant)
     if user:
