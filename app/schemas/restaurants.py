@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, HttpUrl
 from app.schemas.comments import RestaurantComment
-
+from typing import List
 class SimplifiedRestaurant(BaseModel):
     name: str
     address: str
@@ -9,7 +9,13 @@ class SimplifiedRestaurant(BaseModel):
     rating: float = Field(None, ge=0, le=5)
     placeId: str
     viewCount: int = Field(0, ge=0)  
-    favCount: int = Field(0, ge=0)  
+    favCount: int = Field(0, ge=0)
+
+class PaginatedRestaurantResponse(BaseModel):
+    total: int
+    restaurants: List[SimplifiedRestaurant]
+    limit: int
+    offset: int
 
 class Restaurant(SimplifiedRestaurant):
     comments: list[RestaurantComment]

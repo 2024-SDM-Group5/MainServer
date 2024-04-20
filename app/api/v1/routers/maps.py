@@ -2,19 +2,20 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from fastapi.security import OAuth2PasswordBearer
 from typing import List, Optional 
 
-from app.schemas.maps import MapCreate, MapUpdate, SimplifiedMap, CompleteMap, PostResponse, PutResponse
+from app.schemas.maps import MapCreate, MapUpdate, SimplifiedMap, CompleteMap, PostResponse, PutResponse, PaginatedMapResponse
 from app.dependencies.auth import get_current_user, get_optional_user
 from app.schemas.users import UserLoginInfo
 
 router = APIRouter(prefix="/api/v1/maps", tags=["maps"])
 
-@router.get("", response_model=List[SimplifiedMap])
+@router.get("", response_model=PaginatedMapResponse)
 async def get_maps(
     orderBy: str = Query("favCount", enum=["favCount", "createTime"]),
     tags: Optional[List[str]] = Query(None),
     offset: int = Query(0, ge=0),
     limit: int = Query(10, ge=1, le=100),
     reverse: bool = Query(False),
+    q: Optional[str] = Query(None),
 ):
     print(tags, offset, limit, reverse)
     maps = [
@@ -43,8 +44,14 @@ async def get_maps(
             "favCount": 117
         }
     ]
-
-    return maps
+    total = len(maps)
+    maps = maps[offset:offset+limit]
+    return {
+        "total": total,
+        "maps": maps,
+        "limit": limit,
+        "offset": offset
+    }
 
 
 # --- Create_Map ---
@@ -58,7 +65,10 @@ async def create_map(map_data: MapCreate, user: UserLoginInfo = Depends(get_curr
 
 # --- Single_Map ---
 @router.get("/{id}", response_model=CompleteMap)
-async def get_single_map(id: int = Path(...), user: Optional[UserLoginInfo] = Depends(get_optional_user)):
+async def get_single_map(
+    id: int = Path(...), 
+    user: Optional[UserLoginInfo] = Depends(get_optional_user)
+):
     map_data = {
         "id": 11,
         "name": "台北飲料地圖",

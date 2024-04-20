@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, HttpUrl
 from app.schemas.restaurants import SimplifiedRestaurant
-
+from typing import List
 class SimplifiedMap(BaseModel):
     """For simplified maps in the Get_Maps listing"""
     id: int
@@ -9,6 +9,12 @@ class SimplifiedMap(BaseModel):
     author: str
     viewCount: int
     favCount: int
+
+class PaginatedMapResponse(BaseModel):
+    total: int
+    maps: List[SimplifiedMap]
+    limit: int
+    offset: int
 
 class CompleteMap(SimplifiedMap):
     """For complete maps in the Get_Maps listing"""
