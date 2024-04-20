@@ -5,7 +5,7 @@ from typing import List, Optional
 from app.schemas.maps import MapCreate, MapUpdate, SimplifiedMap, CompleteMap, PostResponse, PutResponse, PaginatedMapResponse
 from app.dependencies.auth import get_current_user, get_optional_user
 from app.schemas.users import UserLoginInfo
-
+from app.schemas.restaurants import PaginatedRestaurantResponse
 router = APIRouter(prefix="/api/v1/maps", tags=["maps"])
 
 @router.get("", response_model=PaginatedMapResponse)
@@ -80,40 +80,66 @@ async def get_single_map(
         "author": "enip",
         "viewCount": 441,
         "favCount": 189,
-        "restaurants": [
-            {
-                "name": "Restaurant 1",
-                "location": {
-                    "lat": 25.0329694,
-                    "lng": 121.5654177
-                },
-                "address": "台北市大安區辛亥路二段170號",
-                "telephone": "02 1234 5554",
-                "rating": 4.5,
-                "placeId": "asdjglsakjgka",
-                "viewCount": 400,
-                "favCount": 100,
-            },
-            {
-                "name": "Restaurant 2",
-                "location": {
-                    "lat": 25.0329694,
-                    "lng": 121.5654177
-                },
-                "address": "台北市大安區辛亥路二段170號",
-                "telephone": "02 1234 5554",
-                "rating": 4.2,
-                "placeId": "wewtwatqawt",
-                "viewCount": 400,
-                "favCount": 100,
-            }
-        ],
         "hasFavorited": False
     }
     if user:
         map_data["hasFavorited"] = True
     return map_data
 
+@router.get("/{id}/restaurants", response_model=PaginatedRestaurantResponse)
+async def get_restaurants(
+    id: int = Path(...),
+    orderBy: str = Query("favCount", enum=["favCount", "createTime"]),
+    tags: Optional[List[str]] = Query(None),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1, le=100),
+    reverse: bool = Query(False),
+    q: Optional[str] = Query(None),
+):
+    restaurants = [
+        {
+            "name": "Restaurant 1",
+            "location": {
+                "lat": 25.0329694,
+                "lng": 121.5654177
+            },
+            "address": "台北市大安區辛亥路二段170號",
+            "telephone": "02 1234 5554",
+            "rating": 4.5,
+            "placeId": "asdjglsakjgka",
+            "viewCount": 400,
+            "favCount": 100,
+        },
+        {
+            "name": "Restaurant 2",
+            "location": {
+                "lat": 25.0329694,
+                "lng": 121.5654177
+            },
+            "address": "台北市大安區辛亥路二段170號",
+            "telephone": "02 1234 5554",
+            "rating": 4.2,
+            "placeId": "wewtwatqawt",
+            "viewCount": 400,
+            "favCount": 100,
+        },
+        {
+            "name": "Restaurant 3",
+            "location": {
+                "lat": 25.0329694,
+                "lng": 121.5654177
+            },
+            "address": "台北市大安區辛亥路二段170號",
+            "telephone": "02 1234 5554",
+            "rating": 4.2,
+            "placeId": "wewtwatqawt",
+            "viewCount": 400,
+            "favCount": 100,
+        }
+    ]
+    total = len(restaurants)
+    restaurants = restaurants[offset:offset+limit]
+    return PaginatedRestaurantResponse(total=total, restaurants=restaurants, limit=limit, offset=offset)
 
 # --- Modify_Map ---
 @router.put("/{id}", response_model=PutResponse)
