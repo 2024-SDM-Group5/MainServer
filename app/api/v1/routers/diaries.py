@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Path, Query
 from typing import List, Optional 
 
 from app.schemas.diaries import (
-    DiaryCreate, DiaryUpdate, DiaryDisplay, DiaryResponse, DiaryFavorite)
+    DiaryCreate, DiaryUpdate, DiaryDisplay, DiaryResponse)
 from app.dependencies.auth import get_current_user, get_optional_user
 from app.schemas.users import UserLoginInfo
 router = APIRouter(prefix="/api/v1/diaries", tags=["diaries"])
@@ -107,7 +107,7 @@ async def delete_diary(
         "message": f"User {user.userId} deleted diary number {id}"
     }
 
-@router.post("{id}/favorite", response_model=DiaryResponse, status_code=201)
+@router.post("/{id}/favorite", response_model=DiaryResponse, status_code=201)
 async def favorite_diary(
     id: int = Path(...),
     user: UserLoginInfo = Depends(get_current_user)
@@ -117,7 +117,7 @@ async def favorite_diary(
         "message": f"User {user.userId} favorited diary number {id}"
     }
 
-@router.delete("{id}/favorite", response_model=DiaryResponse, status_code=201)
+@router.delete("/{id}/favorite", response_model=DiaryResponse, status_code=201)
 async def unfavorite_diary(
     id: int = Path(...),
     user: UserLoginInfo = Depends(get_current_user)
@@ -127,7 +127,7 @@ async def unfavorite_diary(
         "message": f"User {user.userId} unfavorited diary number {id}"
     }
 
-@router.post("{id}/collect", response_model=DiaryResponse, status_code=201)
+@router.post("/{id}/collect", response_model=DiaryResponse, status_code=201)
 async def collect_diary(
     id: int = Path(...),
     user: UserLoginInfo = Depends(get_current_user)
@@ -137,7 +137,7 @@ async def collect_diary(
         "message": f"User {user.userId} collected diary number {id}"
     }
 
-@router.delete("{id}/collect", response_model=DiaryResponse, status_code=201)
+@router.delete("/{id}/collect", response_model=DiaryResponse, status_code=201)
 async def uncollect_diary(
     id: int = Path(...),
     user: UserLoginInfo = Depends(get_current_user)

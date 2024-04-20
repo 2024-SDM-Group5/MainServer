@@ -83,7 +83,7 @@ async def get_single_restaurant(place_id: str = Path(...), user: Optional[UserLo
         restaurant["hasCollected"] = True
     return restaurant
 
-@router.post("{place_id}/collect", response_model=PostResponse, status_code=201)
+@router.post("/{place_id}/collect", response_model=PostResponse, status_code=201)
 async def collect_diary(
     place_id: str = Path(...),
     user: UserLoginInfo = Depends(get_current_user)
@@ -93,7 +93,7 @@ async def collect_diary(
         "message": f"User {user.userId} collected place {place_id}"
     }
 
-@router.delete("{place_id}/collect", response_model=PostResponse, status_code=201)
+@router.delete("/{place_id}/collect", response_model=PostResponse, status_code=201)
 async def uncollect_diary(
     place_id: str = Path(...),
     user: UserLoginInfo = Depends(get_current_user)

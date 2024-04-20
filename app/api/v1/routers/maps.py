@@ -168,7 +168,7 @@ async def delete_map(id: int = Path(...), user: UserLoginInfo = Depends(get_curr
 async def collect_map(id: int = Path(...), user: UserLoginInfo = Depends(get_current_user)):
     return {
         "success": True,
-        "message": f"{user.userId} has favorited map number {id}",
+        "message": f"{user.userId} has collected map number {id}",
     }
 
 
@@ -176,5 +176,5 @@ async def collect_map(id: int = Path(...), user: UserLoginInfo = Depends(get_cur
 async def uncollect_map(id: int = Path(...), user: UserLoginInfo = Depends(get_current_user)):
     return {
         "success": True,
-        "message": f"{user.userId} has unfavorited map number {id}",
+        "message": f"{user.userId} has uncollected map number {id}",
     }
