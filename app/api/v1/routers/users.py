@@ -5,7 +5,7 @@ from app.schemas.users import UserLogin, UserUpdate, UserPostResult, UserLoginIn
 from app.schemas.diaries import SimpleDiary
 from typing import List
 from app.dependencies.auth import get_current_user, get_optional_user
-from app.models.cloud_storage import save_file_to_gcs
+from app.services.cloud_storage import save_file_to_gcs
 
 # from app.models import User as UserModel
 

@@ -1,12 +1,8 @@
 import googlemaps
-from dotenv import load_dotenv
-import os
 from app.schemas.restaurants import Restaurant
-from pathlib import Path
+from app.core.config import Config
 
-env_path = Path(__file__).parent.parent / ".env"
-load_dotenv(dotenv_path=env_path)
-api_key = os.getenv('GOOGLE_MAPS_API_KEY')
+api_key = Config.GOOGLE_MAPS_API_KEY
 if not api_key:
     raise ValueError("No API key provided. Set GOOGLE_MAPS_API_KEY environment variable.")
 

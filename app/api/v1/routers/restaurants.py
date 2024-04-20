@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Path, Depends, HTTPException, Query
 from app.schemas.restaurants import Restaurant, PaginatedRestaurantResponse
-from app.models.places_api import get_place_details
+from app.services.places_api import get_place_details
 from app.schemas.users import UserLoginInfo
 from typing import Optional, List
 from app.dependencies.auth import get_optional_user
