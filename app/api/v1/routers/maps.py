@@ -25,7 +25,7 @@ async def get_maps(
             "iconUrl": "https://picsum.photos/200",
             "author": "enip",
             "viewCount": 441,
-            "favCount": 189
+            "collectCount": 189
         },
         {
             "id": 12,
@@ -33,7 +33,7 @@ async def get_maps(
             "iconUrl": "https://picsum.photos/200",
             "author": "enip",
             "viewCount": 370,
-            "favCount": 152
+            "collectCount": 152
         },
         {
             "id": 13,
@@ -41,7 +41,7 @@ async def get_maps(
             "iconUrl": "https://picsum.photos/200",
             "author": "enip",
             "viewCount": 295,
-            "favCount": 117
+            "collectCount": 117
         }
     ]
     total = len(maps)
@@ -79,7 +79,7 @@ async def get_single_map(
         },
         "author": "enip",
         "viewCount": 441,
-        "favCount": 189,
+        "collectCount": 189,
         "hasCollected": False,
     }
     if user:
@@ -110,7 +110,7 @@ async def get_restaurants(
             "rating": 4.5,
             "placeId": "asdjglsakjgka",
             "viewCount": 400,
-            "favCount": 100,
+            "collectCount": 100,
         },
         {
             "name": "Restaurant 2",
@@ -123,7 +123,7 @@ async def get_restaurants(
             "rating": 4.2,
             "placeId": "wewtwatqawt",
             "viewCount": 400,
-            "favCount": 100,
+            "collectCount": 100,
         },
         {
             "name": "Restaurant 3",
@@ -136,7 +136,7 @@ async def get_restaurants(
             "rating": 4.2,
             "placeId": "wewtwatqawt",
             "viewCount": 400,
-            "favCount": 100,
+            "collectCount": 100,
         }
     ]
     total = len(restaurants)

@@ -17,7 +17,8 @@ class DiaryDisplay(BaseModel):
     photos: list[HttpUrl]
     content: str
     replies: list[Reply] = [] 
-    favCount: int = Field(0, ge=0) 
+    favCount: int = Field(..., ge=0) 
+    collectCount: int = Field(..., ge=0)
     createdAt: datetime
     hasFavorited: bool = Field(False, description="Flag indicating if the user is currently being favorited by the authenticated user")
     hasCollected: bool = Field(False, description="Flag indicating if the user has collected this diary")

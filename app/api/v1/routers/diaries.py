@@ -33,6 +33,7 @@ async def get_diaries(
                 }
             ],
             "favCount": 25,
+            "collectCount": 25,
             "createdAt": 1711987662
         }
     ]
@@ -76,6 +77,7 @@ async def get_single_diary(id: int = Path(...), user: Optional[UserLoginInfo] = 
             }
         ],
         "favCount": 25,
+        "collectCount": 25,
         "createdAt": 1711987662,
         "hasFavorited": False,
         "hasCollected": False

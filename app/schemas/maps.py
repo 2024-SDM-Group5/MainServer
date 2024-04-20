@@ -8,7 +8,7 @@ class SimplifiedMap(BaseModel):
     iconUrl: HttpUrl = Field(None)
     author: str
     viewCount: int
-    favCount: int
+    collectCount: int
 
 class PaginatedMapResponse(BaseModel):
     total: int

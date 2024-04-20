@@ -33,10 +33,4 @@ async def get_place_details(place_id):
         "location": location, 
         "telephone": telephone, 
         "rating": rating,
-        "viewCount": 0,
-        "favCount": 0,
-        "diaries": [],
-        "hasCollected": False,
-        "hasLiked": False,
-        "hasDisliked": False
     }

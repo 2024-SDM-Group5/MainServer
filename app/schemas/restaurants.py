@@ -9,7 +9,9 @@ class SimplifiedRestaurant(BaseModel):
     rating: float = Field(None, ge=0, le=5)
     placeId: str
     viewCount: int = Field(0, ge=0)  
-    favCount: int = Field(0, ge=0)
+    collectCount: int = Field(..., ge=0)
+    likeCount: int = Field(..., ge=0)
+    dislikeCount: int = Field(..., ge=0)
 
 class PaginatedRestaurantResponse(BaseModel):
     total: int

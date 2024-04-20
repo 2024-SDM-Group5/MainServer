@@ -9,7 +9,7 @@ router = APIRouter(prefix="/api/v1/restaurants", tags=["restaurants"])
 
 @router.get("", response_model=PaginatedRestaurantResponse)
 async def get_restaurants(
-    orderBy: str = Query("favCount", enum=["favCount", "createTime"]),
+    orderBy: str = Query("collectCount", enum=["collectCount", "createTime"]),
     tags: Optional[List[str]] = Query(None),
     offset: int = Query(0, ge=0),
     limit: int = Query(10, ge=1, le=100),
@@ -28,7 +28,9 @@ async def get_restaurants(
             "rating": 4.5,
             "placeId": "asdjglsakjgka",
             "viewCount": 400,
-            "favCount": 100,
+            "collectCount": 100,
+            "likeCount": 100,
+            "dislikeCount": 100,
         },
         {
             "name": "Restaurant 2",
@@ -41,7 +43,9 @@ async def get_restaurants(
             "rating": 4.2,
             "placeId": "wewtwatqawt",
             "viewCount": 400,
-            "favCount": 100,
+            "collectCount": 100,
+            "likeCount": 101,
+            "dislikeCount": 100,
         },
         {
             "name": "Restaurant 3",
@@ -54,7 +58,9 @@ async def get_restaurants(
             "rating": 4.2,
             "placeId": "wewtwatqawt",
             "viewCount": 400,
-            "favCount": 100,
+            "collectCount": 100,
+            "likeCount": 100,
+            "dislikeCount": 100
         }
     ]
     total = len(restaurants)
@@ -72,8 +78,14 @@ async def get_single_restaurant(place_id: str = Path(...), user: Optional[UserLo
         restaurant["hasLiked"] = True
     else:
         restaurant["hasDisliked"] = True
-    return restaurant
-
+    return Restaurant(**restaurant, 
+                      viewCount=0, 
+                      favCount=0, 
+                      collectCount=0, 
+                      likeCount=0, 
+                      dislikeCount=0,
+                      diaries=[])
+ 
 @router.post("/{place_id}/collect", response_model=PostResponse, status_code=201)
 async def collect_diary(
     place_id: str = Path(...),
