@@ -81,7 +81,6 @@ async def get_single_map(
         "viewCount": 441,
         "favCount": 189,
         "hasCollected": False,
-        "restaurants": []
     }
     if user:
         map_data["hasCollected"] = True

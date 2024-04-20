@@ -18,7 +18,6 @@ class PaginatedMapResponse(BaseModel):
 
 class CompleteMap(SimplifiedMap):
     """For complete maps in the Get_Maps listing"""
-    restaurants: list[SimplifiedRestaurant]
     center: dict  # Contains 'lat' and 'lng' fields
     hasCollected: bool = Field(..., description="Flag indicating if the map is currently being favorited by the authenticated user")
 
@@ -37,11 +36,10 @@ class MapDisplay(BaseModel):
     id: int
     name: str
     iconUrl: HttpUrl = Field(None)
-    center: dict  # Contains 'lat' and 'lng' fields
+    center: dict
     author: str
     viewCount: int
     favCount: int 
-    restaurants: list[SimplifiedRestaurant] 
 
 class PostResponse(BaseModel):
     success: bool
