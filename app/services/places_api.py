@@ -35,6 +35,5 @@ async def get_place_details(place_id):
         rating=rating,
         viewCount=0,
         favCount=0,
-        diaries=[],
-        hasFavorited=False
+        diaries=[]
     )

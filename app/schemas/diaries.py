@@ -20,6 +20,7 @@ class DiaryDisplay(BaseModel):
     favCount: int = Field(0, ge=0) 
     createdAt: datetime
     hasFavorited: bool = Field(False, description="Flag indicating if the user is currently being favorited by the authenticated user")
+    hasCollected: bool = Field(False, description="Flag indicating if the user has collected this diary")
 
 class DiaryCreate(BaseModel):
     restaurantId: str

@@ -20,14 +20,14 @@ class CompleteMap(SimplifiedMap):
     """For complete maps in the Get_Maps listing"""
     restaurants: list[SimplifiedRestaurant]
     center: dict  # Contains 'lat' and 'lng' fields
-    hasFavorited: bool = Field(..., description="Flag indicating if the map is currently being favorited by the authenticated user")
+    hasCollected: bool = Field(..., description="Flag indicating if the map is currently being favorited by the authenticated user")
 
 class MapCreate(BaseModel):
     name: str
     iconUrl: HttpUrl = Field(None)
     authorId: int
     tags: list[str]
-    restaurants: list[str]
+    restaurants: list[str] = Field([])
 
 class MapUpdate(MapCreate):
     """Reuses MapCreate as a base, all fields remain optional for updates"""

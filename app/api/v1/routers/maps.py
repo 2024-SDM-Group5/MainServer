@@ -80,10 +80,11 @@ async def get_single_map(
         "author": "enip",
         "viewCount": 441,
         "favCount": 189,
-        "hasFavorited": False
+        "hasCollected": False,
+        "restaurants": []
     }
     if user:
-        map_data["hasFavorited"] = True
+        map_data["hasCollected"] = True
     return map_data
 
 @router.get("/{id}/restaurants", response_model=PaginatedRestaurantResponse)

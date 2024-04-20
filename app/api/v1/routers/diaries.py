@@ -76,7 +76,8 @@ async def get_single_diary(id: int = Path(...), user: Optional[UserLoginInfo] = 
         ],
         "favCount": 25,
         "createdAt": 1711987662,
-        "hasFavorited": False
+        "hasFavorited": False,
+        "hasCollected": False
     }
     if user:
         diary["hasFavorited"] = True

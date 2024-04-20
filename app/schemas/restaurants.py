@@ -19,4 +19,4 @@ class PaginatedRestaurantResponse(BaseModel):
 
 class Restaurant(SimplifiedRestaurant):
     diaries: list[SimpleDiary]
-    hasFavorited: bool = Field(..., description="Flag indicating if the restaurant is currently being favorited by the authenticated user")
+    hasCollected: bool = Field(False, description="Flag indicating if the restaurant is currently being collected by the authenticated user")

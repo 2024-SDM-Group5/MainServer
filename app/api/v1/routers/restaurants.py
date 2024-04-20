@@ -80,5 +80,5 @@ async def get_single_restaurant(place_id: str = Path(...), user: Optional[UserLo
     # }
     print(restaurant)
     if user:
-        restaurant["hasFavorited"] = True
+        restaurant["hasCollected"] = True
     return restaurant
