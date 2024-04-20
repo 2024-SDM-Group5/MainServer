@@ -18,11 +18,15 @@ async def get_diaries(
         {
             "id": 1,
             "username": "foodieJane",
+            "restaurantId": "ChIJrUiM4v6pQjQRF5fxVizXryo",
+            "restaurantName": "JJ Poke",
             "avatarUrl": "https://picsum.photos/200",
             "photos": ["https://picsum.photos/200", "https://picsum.photos/200"],
             "content": "Tried this amazing boba place today!",
             "replies": [
                 { 
+                    "id": 1,
+                    "authorId": 1,
                     "username": "bobaLover",     
                     "avatarUrl": "https://picsum.photos/200",
                     "content": "Looks delicious!",
@@ -55,18 +59,20 @@ async def get_single_diary(id: int = Path(...), user: Optional[UserLoginInfo] = 
     diary = {
         "id": 1,
         "username": "foodieJane",
+        "restaurantId": "ChIJrUiM4v6pQjQRF5fxVizXryo",
+        "restaurantName": "JJ Poke",
         "avatarUrl": "https://picsum.photos/200",
         "photos": ["https://picsum.photos/200", "https://picsum.photos/200"],
         "content": "Tried this amazing boba place today!",
         "replies": [
-        {
-            "id": 1,
-            "authorId": 1,
-            "username": "bobaLover",     
-            "avatarUrl": "https://picsum.photos/200",
-            "content": "Looks delicious!",
-            "createdAt": 1711987663
-        }
+            {
+                "id": 1,
+                "authorId": 1,
+                "username": "bobaLover",     
+                "avatarUrl": "https://picsum.photos/200",
+                "content": "Looks delicious!",
+                "createdAt": 1711987663
+            }
         ],
         "favCount": 25,
         "createdAt": 1711987662,

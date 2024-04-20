@@ -12,6 +12,8 @@ class Reply(BaseModel):
 class DiaryDisplay(BaseModel):
     username: str
     avatarUrl: HttpUrl = Field(None)
+    restaurantId: str
+    restaurantName: str
     photos: list[HttpUrl]
     content: str
     replies: list[Reply] = [] 
@@ -20,7 +22,7 @@ class DiaryDisplay(BaseModel):
     hasFavorited: bool = Field(..., description="Flag indicating if the user is currently being favorited by the authenticated user")
 
 class DiaryCreate(BaseModel):
-    restaurantId: int
+    restaurantId: str
     photos: list[HttpUrl]
     content: str
 
