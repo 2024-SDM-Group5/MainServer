@@ -13,6 +13,9 @@ psycopg2 = "*"
 google-cloud-storage = "*"
 googlemaps = "*"
 python-dotenv = "*"
+pytest = "*"
+httpx = "*"
+trio = "*"
 
 [dev-packages]
 

@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, Path
+from fastapi import APIRouter, Depends, Path
 from fastapi import UploadFile, File
 from typing import Optional
-from app.schemas.users import UserLogin, UserUpdate, UserPostResult, UserLoginInfo, UserFollow, UserUnfollow, UserDisplay  # Import Pydantic models
+from app.schemas.users import UserLogin, UserUpdate, UserPostResult, UserLoginInfo, UserDisplay  # Import Pydantic models
 from app.schemas.diaries import SimpleDiary
 from typing import List
 from app.dependencies.auth import get_current_user, get_optional_user
@@ -65,7 +65,8 @@ async def get_my_detail(user: UserLoginInfo = Depends(get_current_user)):
         "following": 10,
         "followed": 20,
         "mapId": 123,
-        "postCount": 50
+        "postCount": 50,
+        "isFollowing": False
     }
 
 
