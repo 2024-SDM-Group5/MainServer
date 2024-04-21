@@ -111,6 +111,8 @@ async def get_restaurants(
             "placeId": "asdjglsakjgka",
             "viewCount": 400,
             "collectCount": 100,
+            "likeCount": 100,
+            "dislikeCount": 100
         },
         {
             "name": "Restaurant 2",
@@ -124,6 +126,8 @@ async def get_restaurants(
             "placeId": "wewtwatqawt",
             "viewCount": 400,
             "collectCount": 100,
+            "likeCount": 100,
+            "dislikeCount": 100
         },
         {
             "name": "Restaurant 3",
@@ -137,6 +141,8 @@ async def get_restaurants(
             "placeId": "wewtwatqawt",
             "viewCount": 400,
             "collectCount": 100,
+            "likeCount": 100,
+            "dislikeCount": 100
         }
     ]
     total = len(restaurants)
