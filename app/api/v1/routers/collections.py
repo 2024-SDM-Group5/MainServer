@@ -14,7 +14,7 @@ async def get_map_collections(user: UserLoginInfo = Depends(get_current_user)):
             "iconUrl": "https://picsum.photos/200",
             "author": "enip",
             "viewCount": 441,
-            "favCount": 189
+            "collectCount": 189
         },
         {
             "id": 12,
@@ -22,7 +22,7 @@ async def get_map_collections(user: UserLoginInfo = Depends(get_current_user)):
             "iconUrl": "https://picsum.photos/200",
             "author": "enip",
             "viewCount": 370,
-            "favCount": 152
+            "collectCount": 152
         },
         {
             "id": 13,
@@ -30,7 +30,7 @@ async def get_map_collections(user: UserLoginInfo = Depends(get_current_user)):
             "iconUrl": "https://picsum.photos/200",
             "author": "enip",
             "viewCount": 295,
-            "favCount": 117
+            "collectCount": 117
         }
     ]
     return maps
@@ -50,7 +50,9 @@ async def get_restaurant_collections(user: UserLoginInfo = Depends(get_current_u
             "rating": 4.5,
             "placeId": "asdjglsakjgka",
             "viewCount": 400,
-            "favCount": 100,
+            "collectCount": 100,
+            "likeCount": 100,
+            "dislikeCount": 101
         },
         {
             "name": "Restaurant 2",
@@ -63,7 +65,9 @@ async def get_restaurant_collections(user: UserLoginInfo = Depends(get_current_u
             "rating": 4.2,
             "placeId": "wewtwatqawt",
             "viewCount": 400,
-            "favCount": 100,
+            "collectCount": 100,
+            "likeCount": 100,
+            "dislikeCount": 101
         },
         {
             "name": "Restaurant 3",
@@ -76,7 +80,9 @@ async def get_restaurant_collections(user: UserLoginInfo = Depends(get_current_u
             "rating": 4.2,
             "placeId": "wewtwatqawt",
             "viewCount": 400,
-            "favCount": 100,
+            "collectCount": 100,
+            "likeCount": 100,
+            "dislikeCount": 101
         }
     ]
 
