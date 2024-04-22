@@ -1,12 +1,21 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, Path
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import APIRouter, Depends, Query, Path
 from typing import List, Optional 
 
-from app.schemas.maps import MapCreate, MapUpdate, CompleteMap, PostResponse, PutResponse, PaginatedMapResponse
+from app.schemas.maps import (
+    MapCreate, 
+    MapUpdate, 
+    CompleteMap, 
+    PostResponse,
+    PutResponse, 
+    PaginatedMapResponse,
+    SimplifiedMaps_Ex,
+    CompleteMap_Ex
+)
 from app.dependencies.auth import get_current_user, get_optional_user
 from app.schemas.users import UserLoginInfo
-from app.schemas.restaurants import PaginatedRestaurantResponse
+from app.schemas.restaurants import PaginatedRestaurantResponse, SimplifiedRestaurant_Ex
 router = APIRouter(prefix="/api/v1/maps", tags=["maps"])
+
 
 @router.get("", response_model=PaginatedMapResponse)
 async def get_maps(
@@ -18,32 +27,7 @@ async def get_maps(
     q: Optional[str] = Query(None),
 ):
     print(tags, offset, limit, reverse)
-    maps = [
-        {
-            "id": 11,
-            "name": "台北飲料地圖",
-            "iconUrl": "https://picsum.photos/200",
-            "author": "enip",
-            "viewCount": 441,
-            "collectCount": 189
-        },
-        {
-            "id": 12,
-            "name": "飲料導覽",
-            "iconUrl": "https://picsum.photos/200",
-            "author": "enip",
-            "viewCount": 370,
-            "collectCount": 152
-        },
-        {
-            "id": 13,
-            "name": "夜市飲料攻略",
-            "iconUrl": "https://picsum.photos/200",
-            "author": "enip",
-            "viewCount": 295,
-            "collectCount": 117
-        }
-    ]
+    maps = SimplifiedMaps_Ex
     total = len(maps)
     maps = maps[offset:offset+limit]
     return {
@@ -69,19 +53,7 @@ async def get_single_map(
     id: int = Path(...), 
     user: Optional[UserLoginInfo] = Depends(get_optional_user)
 ):
-    map_data = {
-        "id": 11,
-        "name": "台北飲料地圖",
-        "iconUrl": "https://picsum.photos/200",
-        "center": {
-            "lat": 25.0329694,
-            "lng": 121.5654118
-        },
-        "author": "enip",
-        "viewCount": 441,
-        "collectCount": 189,
-        "hasCollected": False,
-    }
+    map_data = CompleteMap_Ex
     if user:
         map_data["hasCollected"] = True
     return map_data
@@ -98,53 +70,7 @@ async def get_restaurants(
     sw: Optional[str] = Query(None),
     ne: Optional[str] = Query(None),
 ):
-    restaurants = [
-        {
-            "name": "Restaurant 1",
-            "location": {
-                "lat": 25.0329694,
-                "lng": 121.5654177
-            },
-            "address": "台北市大安區辛亥路二段170號",
-            "telephone": "02 1234 5554",
-            "rating": 4.5,
-            "placeId": "ChIJexSiLC-qQjQR0LgDorEWhig",
-            "viewCount": 400,
-            "collectCount": 100,
-            "likeCount": 100,
-            "dislikeCount": 100
-        },
-        {
-            "name": "Restaurant 2",
-            "location": {
-                "lat": 25.0329694,
-                "lng": 121.5654177
-            },
-            "address": "台北市大安區辛亥路二段170號",
-            "telephone": "02 1234 5554",
-            "rating": 4.2,
-            "placeId": "ChIJexSiLC-qQjQR0LgDorEWhig",
-            "viewCount": 400,
-            "collectCount": 100,
-            "likeCount": 100,
-            "dislikeCount": 100
-        },
-        {
-            "name": "Restaurant 3",
-            "location": {
-                "lat": 25.0329694,
-                "lng": 121.5654177
-            },
-            "address": "台北市大安區辛亥路二段170號",
-            "telephone": "02 1234 5554",
-            "rating": 4.2,
-            "placeId": "ChIJexSiLC-qQjQR0LgDorEWhig",
-            "viewCount": 400,
-            "collectCount": 100,
-            "likeCount": 100,
-            "dislikeCount": 100
-        }
-    ]
+    restaurants = SimplifiedRestaurant_Ex
     total = len(restaurants)
     restaurants = restaurants[offset:offset+limit]
     return PaginatedRestaurantResponse(total=total, restaurants=restaurants, limit=limit, offset=offset)

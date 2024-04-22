@@ -23,6 +23,31 @@ class DiaryDisplay(BaseModel):
     hasFavorited: bool = Field(False, description="Flag indicating if the user is currently being favorited by the authenticated user")
     hasCollected: bool = Field(False, description="Flag indicating if the user has collected this diary")
 
+DiaryDisplay_Ex = {
+    "id": 1,
+    "username": "foodieJane",
+    "restaurantId": "ChIJrUiM4v6pQjQRF5fxVizXryo",
+    "restaurantName": "JJ Poke",
+    "avatarUrl": "https://picsum.photos/200",
+    "photos": ["https://picsum.photos/200", "https://picsum.photos/200"],
+    "content": "Tried this amazing boba place today!",
+    "replies": [
+        {
+            "id": 1,
+            "authorId": 1,
+            "username": "bobaLover",     
+            "avatarUrl": "https://picsum.photos/200",
+            "content": "Looks delicious!",
+            "createdAt": 1711987663
+        }
+    ],
+    "favCount": 25,
+    "collectCount": 25,
+    "createdAt": 1711987662,
+    "hasFavorited": False,
+    "hasCollected": False
+}
+
 class DiaryCreate(BaseModel):
     restaurantId: str
     photos: list[HttpUrl]
@@ -40,3 +65,21 @@ class SimplifiedDiary(BaseModel):
     id: int
     imageUrl: HttpUrl
     restaurantName: str
+
+SimplifiedDiary_Ex = [
+    {
+        "id": 1,
+        "imageUrl": "https://picsum.photos/200",
+        "restaurantName": "JJ Poke"
+    },
+    {
+        "id": 2,
+        "imageUrl": "https://picsum.photos/200",
+        "restaurantName": "Boba Guys"
+    },
+    {
+        "id": 3,
+        "imageUrl": "https://picsum.photos/200",
+        "restaurantName": "Happy Lemon"
+    }
+]

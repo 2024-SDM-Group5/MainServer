@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Path, Query
 from fastapi import UploadFile, File
 from typing import Optional
-from app.schemas.users import UserLogin, UserUpdate, UserPostResult, UserLoginInfo, UserDisplay  # Import Pydantic models
-from app.schemas.diaries import SimplifiedDiary
+from app.schemas.users import UserLogin, UserUpdate, UserPostResult, UserLoginInfo, UserDisplay, UserDisplays_Ex
+from app.schemas.diaries import SimplifiedDiary, SimplifiedDiary_Ex
 from typing import List
 from app.dependencies.auth import get_current_user, get_optional_user
 from app.services.cloud_storage import save_file_to_gcs
@@ -18,28 +18,7 @@ async def get_users_detail(
     reverse: bool = Query(False),
     q: Optional[str] = Query(None),
 ):
-    user_list = [
-        {
-            "id": 1,
-            "displayName": "John Doe",
-            "avatarUrl": "https://picsum.photos/200",
-            "following": 10,
-            "followed": 20,
-            "mapId": 123,
-            "postCount": 50,
-            "isFollowing": False
-        },
-        {
-            "id": 2,
-            "displayName": "xxx",
-            "avatarUrl": "https://picsum.photos/200",
-            "following": 11,
-            "followed": 24,
-            "mapId": 125,
-            "postCount": 50,
-            "isFollowing": False
-        },
-    ]
+    user_list = UserDisplays_Ex
 
     if q:
         for index, user in enumerate(user_list):
@@ -94,30 +73,14 @@ async def unfollow_user(
 
 @router.get("/me", response_model=UserDisplay)
 async def get_my_detail(user: UserLoginInfo = Depends(get_current_user)):
-    return {
-        "id": 1,
-        "displayName": "John Doe",
-        "avatarUrl": "https://picsum.photos/200",
-        "following": 10,
-        "followed": 20,
-        "mapId": 123,
-        "postCount": 50,
-        "isFollowing": False
-    }
+    fetched = UserDisplays_Ex[0]
+    fetched["id"] = user.userId
+    return fetched
 
 
 @router.get("/{id}", response_model=UserDisplay)
 async def get_user_detail(id: int = Path(...), user: Optional[UserLoginInfo] = Depends(get_optional_user)):
-    user_detail = {
-        "id": id,
-        "displayName": "John Doe",
-        "avatarUrl": "https://picsum.photos/200",
-        "following": 10,
-        "followed": 20,
-        "mapId": 123,
-        "postCount": 50,
-        "isFollowing": False
-    }
+    user_detail = UserDisplays_Ex[0]
     if user:
         user_detail["isFollowing"] = True
     return user_detail
@@ -125,10 +88,7 @@ async def get_user_detail(id: int = Path(...), user: Optional[UserLoginInfo] = D
 
 @router.get("/{id}/diaries", response_model=List[SimplifiedDiary])
 async def get_user_diaries(id: int = Path(...)):
-    diaries = [
-        {"id": 1, "imageUrl": "https://picsum.photos/200", "restaurantName": "JJ Poke"},
-        {"id": 2, "imageUrl": "https://picsum.photos/200", "restaurantName": "Boba Guys"},
-    ]
+    diaries = SimplifiedDiary_Ex
     return diaries
 
 

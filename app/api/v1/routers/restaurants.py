@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Path, Depends, HTTPException, Query
-from app.schemas.restaurants import Restaurant, PaginatedRestaurantResponse, PostResponse
+from app.schemas.restaurants import Restaurant, PaginatedRestaurantResponse, PostResponse, SimplifiedRestaurant_Ex
 from app.services.places_api import get_place_details
 from app.schemas.users import UserLoginInfo
 from typing import Optional, List
@@ -16,53 +16,7 @@ async def get_restaurants(
     reverse: bool = Query(False),
     q: Optional[str] = Query(None),
 ):
-    restaurants = [
-        {
-            "name": "Restaurant 1",
-            "location": {
-                "lat": 25.0329694,
-                "lng": 121.5654177
-            },
-            "address": "台北市大安區辛亥路二段170號",
-            "telephone": "02 1234 5554",
-            "rating": 4.5,
-            "placeId": "ChIJexSiLC-qQjQR0LgDorEWhig",
-            "viewCount": 400,
-            "collectCount": 100,
-            "likeCount": 100,
-            "dislikeCount": 100,
-        },
-        {
-            "name": "Restaurant 2",
-            "location": {
-                "lat": 25.0329694,
-                "lng": 121.5654177
-            },
-            "address": "台北市大安區辛亥路二段170號",
-            "telephone": "02 1234 5554",
-            "rating": 4.2,
-            "placeId": "ChIJexSiLC-qQjQR0LgDorEWhig",
-            "viewCount": 400,
-            "collectCount": 100,
-            "likeCount": 101,
-            "dislikeCount": 100,
-        },
-        {
-            "name": "Restaurant 3",
-            "location": {
-                "lat": 25.0329694,
-                "lng": 121.5654177
-            },
-            "address": "台北市大安區辛亥路二段170號",
-            "telephone": "02 1234 5554",
-            "rating": 4.2,
-            "placeId": "ChIJexSiLC-qQjQR0LgDorEWhig",
-            "viewCount": 400,
-            "collectCount": 100,
-            "likeCount": 100,
-            "dislikeCount": 100
-        }
-    ]
+    restaurants = SimplifiedRestaurant_Ex
     total = len(restaurants)
     restaurants = restaurants[offset:offset+limit]
     return PaginatedRestaurantResponse(total=total, restaurants=restaurants, limit=limit, offset=offset)

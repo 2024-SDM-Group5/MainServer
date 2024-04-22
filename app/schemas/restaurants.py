@@ -12,6 +12,66 @@ class SimplifiedRestaurant(BaseModel):
     collectCount: int = Field(..., ge=0)
     likeCount: int = Field(..., ge=0)
     dislikeCount: int = Field(..., ge=0)
+    hasCollected: bool = Field(False, description="Flag indicating if the restaurant is currently being collected by the authenticated user")
+    hasLiked: bool = Field(False, description="Flag indicating if the restaurant is currently being liked by the authenticated user")
+    hasDisliked: bool = Field(False, description="Flag indicating if the restaurant is currently being disliked by the authenticated user")
+
+SimplifiedRestaurant_Ex = [
+    {
+        "name": "Restaurant 1",
+        "location": {
+            "lat": 25.0329694,
+            "lng": 121.5654177
+        },
+        "address": "台北市大安區辛亥路二段170號",
+        "telephone": "02 1234 5554",
+        "rating": 4.5,
+        "placeId": "ChIJexSiLC-qQjQR0LgDorEWhig",
+        "viewCount": 400,
+        "collectCount": 100,
+        "likeCount": 100,
+        "dislikeCount": 100,
+        "hasCollected": False,
+        "hasLiked": False,
+        "hasDisliked": False
+    },
+    {
+        "name": "Restaurant 2",
+        "location": {
+            "lat": 25.0329694,
+            "lng": 121.5654177
+        },
+        "address": "台北市大安區辛亥路二段170號",
+        "telephone": "02 1234 5554",
+        "rating": 4.2,
+        "placeId": "ChIJexSiLC-qQjQR0LgDorEWhig",
+        "viewCount": 400,
+        "collectCount": 100,
+        "likeCount": 101,
+        "dislikeCount": 100,
+        "hasCollected": True,
+        "hasLiked": False,
+        "hasDisliked": False
+    },
+    {
+        "name": "Restaurant 3",
+        "location": {
+            "lat": 25.0329694,
+            "lng": 121.5654177
+        },
+        "address": "台北市大安區辛亥路二段170號",
+        "telephone": "02 1234 5554",
+        "rating": 4.2,
+        "placeId": "ChIJexSiLC-qQjQR0LgDorEWhig",
+        "viewCount": 400,
+        "collectCount": 100,
+        "likeCount": 100,
+        "dislikeCount": 100,
+        "hasCollected": False,
+        "hasLiked": False,
+        "hasDisliked": True
+    }
+]
 
 class PaginatedRestaurantResponse(BaseModel):
     total: int
@@ -21,9 +81,6 @@ class PaginatedRestaurantResponse(BaseModel):
 
 class Restaurant(SimplifiedRestaurant):
     diaries: list[SimplifiedDiary] = Field([], description="List of diaries associated with the restaurant")
-    hasCollected: bool = Field(False, description="Flag indicating if the restaurant is currently being collected by the authenticated user")
-    hasLiked: bool = Field(False, description="Flag indicating if the restaurant is currently being liked by the authenticated user")
-    hasDisliked: bool = Field(False, description="Flag indicating if the restaurant is currently being disliked by the authenticated user")
 class PostResponse(BaseModel):
     success: bool
     message: str

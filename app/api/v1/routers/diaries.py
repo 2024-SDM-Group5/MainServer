@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Path, Query, HTTPException
 from typing import List, Optional 
 
 from app.schemas.diaries import (
-    DiaryCreate, DiaryUpdate, DiaryDisplay, DiaryResponse, SimplifiedDiary)
+    DiaryCreate, DiaryUpdate, DiaryDisplay, DiaryResponse, SimplifiedDiary, SimplifiedDiary_Ex, DiaryDisplay_Ex)
 from app.dependencies.auth import get_current_user, get_optional_user
 from app.schemas.users import UserLoginInfo
 router = APIRouter(prefix="/api/v1/diaries", tags=["diaries"])
@@ -21,23 +21,7 @@ async def get_diaries(
 ):  
     if following and not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    diaries = [
-        {
-            "id": 1,
-            "imageUrl": "https://picsum.photos/200",
-            "restaurantName": "JJ Poke"
-        },
-        {
-            "id": 2,
-            "imageUrl": "https://picsum.photos/200",
-            "restaurantName": "Boba Guys"
-        },
-        {
-            "id": 3,
-            "imageUrl": "https://picsum.photos/200",
-            "restaurantName": "Happy Lemon"
-        }
-    ]
+    diaries = SimplifiedDiary_Ex
 
     if q:
         for index, diary in enumerate(diaries):
@@ -63,30 +47,7 @@ async def create_diary(
 # --- Single_Diary ---
 @router.get("/{id}", response_model=DiaryDisplay)
 async def get_single_diary(id: int = Path(...), user: Optional[UserLoginInfo] = Depends(get_optional_user)):
-    diary = {
-        "id": 1,
-        "username": "foodieJane",
-        "restaurantId": "ChIJrUiM4v6pQjQRF5fxVizXryo",
-        "restaurantName": "JJ Poke",
-        "avatarUrl": "https://picsum.photos/200",
-        "photos": ["https://picsum.photos/200", "https://picsum.photos/200"],
-        "content": "Tried this amazing boba place today!",
-        "replies": [
-            {
-                "id": 1,
-                "authorId": 1,
-                "username": "bobaLover",     
-                "avatarUrl": "https://picsum.photos/200",
-                "content": "Looks delicious!",
-                "createdAt": 1711987663
-            }
-        ],
-        "favCount": 25,
-        "collectCount": 25,
-        "createdAt": 1711987662,
-        "hasFavorited": False,
-        "hasCollected": False
-    }
+    diary = DiaryDisplay_Ex
     if user:
         diary["hasFavorited"] = True
     return diary
