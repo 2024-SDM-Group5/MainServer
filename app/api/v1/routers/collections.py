@@ -44,10 +44,10 @@ async def get_map_collections(user: UserLoginInfo = Depends(get_current_user), d
         }
     ]
     maps = []
-    map_ids = db.query(dbModel.UserMapCollect).with_entities(dbModel.UserMapCollect.map_id).filter(dbModel.UserMapCollect.user_id == user).all()
+    map_ids = await db.query(dbModel.UserMapCollect).with_entities(dbModel.UserMapCollect.map_id).filter(dbModel.UserMapCollect.user_id == user).all()
     for id in map_ids:
-        map = db.query(dbModel.Map).filter(dbModel.Map.map_id == id).first()
-        author = db.query(dbModel.User).with_entities(dbModel.User.user_name).filter(dbModel.User.user_name == map.author).first()
+        map = await db.query(dbModel.Map).filter(dbModel.Map.map_id == id).first()
+        author = await db.query(dbModel.User).with_entities(dbModel.User.user_name).filter(dbModel.User.user_name == map.author).first()
         maps.append(MapDisplay(id=map.map_id, name=map.map_name, iconUrl=map.icon_url, author=author, viewCount=map.view_cnt, collectCount=map.collect_cnt))
     return maps
 
