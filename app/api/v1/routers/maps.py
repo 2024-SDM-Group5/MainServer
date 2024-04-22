@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from fastapi.security import OAuth2PasswordBearer
 from typing import List, Optional 
 
-from app.schemas.maps import MapCreate, MapUpdate, SimplifiedMap, CompleteMap, PostResponse, PutResponse, PaginatedMapResponse
+from app.schemas.maps import MapCreate, MapUpdate, CompleteMap, PostResponse, PutResponse, PaginatedMapResponse
 from app.dependencies.auth import get_current_user, get_optional_user
 from app.schemas.users import UserLoginInfo
 from app.schemas.restaurants import PaginatedRestaurantResponse
@@ -108,7 +108,7 @@ async def get_restaurants(
             "address": "台北市大安區辛亥路二段170號",
             "telephone": "02 1234 5554",
             "rating": 4.5,
-            "placeId": "asdjglsakjgka",
+            "placeId": "ChIJexSiLC-qQjQR0LgDorEWhig",
             "viewCount": 400,
             "collectCount": 100,
             "likeCount": 100,
@@ -123,7 +123,7 @@ async def get_restaurants(
             "address": "台北市大安區辛亥路二段170號",
             "telephone": "02 1234 5554",
             "rating": 4.2,
-            "placeId": "wewtwatqawt",
+            "placeId": "ChIJexSiLC-qQjQR0LgDorEWhig",
             "viewCount": 400,
             "collectCount": 100,
             "likeCount": 100,
@@ -138,7 +138,7 @@ async def get_restaurants(
             "address": "台北市大安區辛亥路二段170號",
             "telephone": "02 1234 5554",
             "rating": 4.2,
-            "placeId": "wewtwatqawt",
+            "placeId": "ChIJexSiLC-qQjQR0LgDorEWhig",
             "viewCount": 400,
             "collectCount": 100,
             "likeCount": 100,

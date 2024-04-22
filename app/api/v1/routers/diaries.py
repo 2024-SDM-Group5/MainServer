@@ -149,6 +149,3 @@ async def uncollect_diary(
         "success": True, 
         "message": f"User {user.userId} uncollected diary number {id}"
     }
-
-
-
