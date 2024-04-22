@@ -3,10 +3,20 @@ from typing import List
 from app.schemas.collections import MapDisplay, RestaurantDisplay, DiaryDisplay
 from app.schemas.users import UserLoginInfo
 from app.dependencies.auth import get_current_user
+import db.database as database
+import sqlalchemy.orm as orm
+import fastapi
+import models.dbModel as dbModel
 router = APIRouter(prefix="/api/v1/collections", tags=["collections"])
 
+def get_db():
+    db = database.SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 @router.get("/map", response_model=List[MapDisplay])
-async def get_map_collections(user: UserLoginInfo = Depends(get_current_user)):
+async def get_map_collections(user: UserLoginInfo = Depends(get_current_user), db: orm.Session=fastapi.Depends(get_db)):
     maps = [
         {
             "id": 11,
@@ -33,6 +43,12 @@ async def get_map_collections(user: UserLoginInfo = Depends(get_current_user)):
             "collectCount": 117
         }
     ]
+    maps = []
+    map_ids = db.query(dbModel.UserMapCollect).with_entities(dbModel.UserMapCollect.map_id).filter(dbModel.UserMapCollect.user_id == user).all()
+    for id in map_ids:
+        map = db.query(dbModel.Map).filter(dbModel.Map.map_id == id).first()
+        author = db.query(dbModel.User).with_entities(dbModel.User.user_name).filter(dbModel.User.user_name == map.author).first()
+        maps.append(MapDisplay(id=map.map_id, name=map.map_name, iconUrl=map.icon_url, author=author, viewCount=map.view_cnt, collectCount=map.collect_cnt))
     return maps
 
 
