@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, HttpUrl
-from app.schemas.diaries import SimpleDiary
+from app.schemas.diaries import SimplifiedDiary
 from typing import List
 class SimplifiedRestaurant(BaseModel):
     name: str
@@ -20,7 +20,7 @@ class PaginatedRestaurantResponse(BaseModel):
     offset: int
 
 class Restaurant(SimplifiedRestaurant):
-    diaries: list[SimpleDiary]
+    diaries: list[SimplifiedDiary] = Field([], description="List of diaries associated with the restaurant")
     hasCollected: bool = Field(False, description="Flag indicating if the restaurant is currently being collected by the authenticated user")
     hasLiked: bool = Field(False, description="Flag indicating if the restaurant is currently being liked by the authenticated user")
     hasDisliked: bool = Field(False, description="Flag indicating if the restaurant is currently being disliked by the authenticated user")

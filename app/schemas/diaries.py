@@ -36,6 +36,7 @@ class DiaryResponse(BaseModel):
     success: bool
     message: str
 
-class SimpleDiary(BaseModel):
+class SimplifiedDiary(BaseModel):
     id: int
     imageUrl: HttpUrl
+    restaurantName: str

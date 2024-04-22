@@ -2,41 +2,42 @@ from fastapi import APIRouter, Depends, Path, Query
 from typing import List, Optional 
 
 from app.schemas.diaries import (
-    DiaryCreate, DiaryUpdate, DiaryDisplay, DiaryResponse)
+    DiaryCreate, DiaryUpdate, DiaryDisplay, DiaryResponse, SimplifiedDiary)
 from app.dependencies.auth import get_current_user, get_optional_user
 from app.schemas.users import UserLoginInfo
 router = APIRouter(prefix="/api/v1/diaries", tags=["diaries"])
 
 
-@router.get("", response_model=List[DiaryDisplay])
+@router.get("", response_model=List[SimplifiedDiary])
 async def get_diaries(
-    offset: int = Query(0, ge=0), 
-    limit: int = Query(10, ge=1, le=100)
+    orderBy: str = Query("collectCount", enum=["collectCount", "createTime"]),
+    tags: Optional[List[str]] = Query(None),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1, le=100),
+    reverse: bool = Query(False),
+    q: Optional[str] = Query(None),
 ):
     diaries = [
         {
             "id": 1,
-            "username": "foodieJane",
-            "restaurantId": "ChIJrUiM4v6pQjQRF5fxVizXryo",
-            "restaurantName": "JJ Poke",
-            "avatarUrl": "https://picsum.photos/200",
-            "photos": ["https://picsum.photos/200", "https://picsum.photos/200"],
-            "content": "Tried this amazing boba place today!",
-            "replies": [
-                { 
-                    "id": 1,
-                    "authorId": 1,
-                    "username": "bobaLover",     
-                    "avatarUrl": "https://picsum.photos/200",
-                    "content": "Looks delicious!",
-                    "createdAt": 1711987663
-                }
-            ],
-            "favCount": 25,
-            "collectCount": 25,
-            "createdAt": 1711987662
+            "imageUrl": "https://picsum.photos/200",
+            "restaurantName": "JJ Poke"
+        },
+        {
+            "id": 2,
+            "imageUrl": "https://picsum.photos/200",
+            "restaurantName": "Boba Guys"
+        },
+        {
+            "id": 3,
+            "imageUrl": "https://picsum.photos/200",
+            "restaurantName": "Happy Lemon"
         }
     ]
+
+    if q:
+        for index, diary in enumerate(diaries):
+            diaries[index]["restaurantName"] = q
 
     return diaries
 

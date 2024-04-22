@@ -48,6 +48,12 @@ async def test_get_user_detail(client):
     assert response.json()['id'] == 1
 
 @pytest.mark.anyio
+async def test_get_users_detail(client):
+    response = await client.get("/api/v1/users")
+    assert response.status_code == 200
+
+
+@pytest.mark.anyio
 async def test_get_user_detail(client):
     response = await client.get("/api/v1/users/me", headers=headers)
     assert response.status_code == 200

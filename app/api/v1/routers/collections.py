@@ -93,14 +93,17 @@ async def get_my_detail(user: UserLoginInfo = Depends(get_current_user)):
     return [
         {
             "id": 1,
-            "imageUrl": "https://picsum.photos/200"
+            "imageUrl": "https://picsum.photos/200",
+            "restaurantName": "JJ Poke"
         },
         {
             "id": 2,
-            "imageUrl": "https://picsum.photos/200"
+            "imageUrl": "https://picsum.photos/200",
+            "restaurantName": "Boba Guys"
         },
         {
             "id": 3,
-            "imageUrl": "https://picsum.photos/200"
+            "imageUrl": "https://picsum.photos/200",
+            "restaurantName": "Happy Lemon"
         }
     ]
