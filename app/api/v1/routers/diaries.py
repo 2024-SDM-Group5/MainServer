@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Path, Query
+from fastapi import APIRouter, Depends, Path, Query, HTTPException
 from typing import List, Optional 
 
 from app.schemas.diaries import (
@@ -16,7 +16,11 @@ async def get_diaries(
     limit: int = Query(10, ge=1, le=100),
     reverse: bool = Query(False),
     q: Optional[str] = Query(None),
-):
+    following: Optional[bool] = Query(None),
+    user: Optional[UserLoginInfo] = Depends(get_optional_user)
+):  
+    if following and not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
     diaries = [
         {
             "id": 1,
