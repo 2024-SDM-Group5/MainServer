@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, Path, Query
 from fastapi import UploadFile, File
-from typing import Optional
+from typing import Optional, List
 from app.schemas.users import UserLogin, UserUpdate, UserPostResult, UserLoginInfo, UserDisplay, UserDisplays_Ex
 from app.schemas.diaries import SimplifiedDiary, SimplifiedDiary_Ex
-from typing import List
-from app.dependencies.auth import get_current_user, get_optional_user
+from app.dependencies.auth import get_current_user, get_optional_user, google_oauth2
+from app.dependencies.db import get_db
 from app.services.cloud_storage import save_file_to_gcs
+from app.crud.users import create_user, get_user_by_email
+
 
 router = APIRouter(prefix="/api/v1/users", tags=["user"])
 
@@ -27,9 +29,17 @@ async def get_users_detail(
 
 
 @router.post("/login", response_model=UserLoginInfo)
-async def login(user_data: UserLogin):
-    user = await get_current_user(user_data.idToken)
-    return user
+async def login(user_data: UserLogin, db = Depends(get_db)):
+    new_user = await google_oauth2(user_data.idToken)
+    exist_user = get_user_by_email(db, new_user["email"])
+    if exist_user:
+        return UserLoginInfo(userId=exist_user.user_id, isNew=False)
+    db_user = {
+        "user_name": new_user["name"],
+        "email": new_user["email"]
+    }
+    user = create_user(db, db_user)
+    return UserLoginInfo(userId=user.user_id, isNew=True)
 
 @router.put("/{id}", response_model=UserPostResult)
 async def update_user(
