@@ -35,9 +35,6 @@ async def get_users_detail(
         ) for user in user_list
     ]
 
-    if q:
-        for index, user in enumerate(user_list):
-            return_list[index]["displayName"] = q
     return return_list
 
 
