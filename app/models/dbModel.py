@@ -33,6 +33,7 @@ class Restaurant(Base):
     rating = Column(Integer, index=True)
     address = Column(String, index=True)
     telephone = Column(String, index=True)
+    created = Column(DateTime, default=datetime.now)
     view_cnt = Column(Integer, default=0, index=True)
 
 class Comment(Base):
