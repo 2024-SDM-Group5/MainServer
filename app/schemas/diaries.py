@@ -11,6 +11,7 @@ class Reply(BaseModel):
 
 class DiaryDisplay(BaseModel):
     username: str
+    userId: int
     avatarUrl: HttpUrl = Field(None)
     restaurantId: str
     restaurantName: str
@@ -26,6 +27,7 @@ class DiaryDisplay(BaseModel):
 DiaryDisplay_Ex = {
     "id": 1,
     "username": "foodieJane",
+    "userId": 1, 
     "restaurantId": "ChIJrUiM4v6pQjQRF5fxVizXryo",
     "restaurantName": "JJ Poke",
     "avatarUrl": "https://picsum.photos/200",

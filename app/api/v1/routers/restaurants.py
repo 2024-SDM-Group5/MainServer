@@ -41,7 +41,7 @@ async def get_single_restaurant(place_id: str = Path(...), user: Optional[UserLo
                       diaries=[])
  
 @router.post("/{place_id}/collect", response_model=PostResponse, status_code=201)
-async def collect_diary(
+async def collect_restaurant(
     place_id: str = Path(...),
     user: UserLoginInfo = Depends(get_current_user)
 ):  
@@ -51,7 +51,7 @@ async def collect_diary(
     }
 
 @router.delete("/{place_id}/collect", response_model=PostResponse)
-async def uncollect_diary(
+async def uncollect_restaurant(
     place_id: str = Path(...),
     user: UserLoginInfo = Depends(get_current_user)
 ):
@@ -60,5 +60,45 @@ async def uncollect_diary(
         "message": f"User {user.userId} uncollected place {place_id}"
     }
 
+
+@router.post("/{place_id}/like", response_model=PostResponse, status_code=201)
+async def like_restaurant(
+    place_id: str = Path(...),
+    user: UserLoginInfo = Depends(get_current_user)
+):  
+    return {
+        "success": True, 
+        "message": f"User {user.userId} liked restaurant number {place_id}"
+    }
+
+@router.delete("/{place_id}/like", response_model=PostResponse)
+async def unlike_restaurant(
+    place_id: str = Path(...),
+    user: UserLoginInfo = Depends(get_current_user)
+):  
+    return {
+        "success": True, 
+        "message": f"User {user.userId} unlike restaurant number {place_id}"
+    }
+
+@router.post("/{place_id}/dislike", response_model=PostResponse, status_code=201)
+async def dislike_restaurant(
+    place_id: str = Path(...),
+    user: UserLoginInfo = Depends(get_current_user)
+):  
+    return {
+        "success": True, 
+        "message": f"User {user.userId} disliked restaurant number {place_id}"
+    }
+
+@router.delete("/{place_id}/dislike", response_model=PostResponse)
+async def undislike_restaurant(
+    place_id: str = Path(...),
+    user: UserLoginInfo = Depends(get_current_user)
+):  
+    return {
+        "success": True, 
+        "message": f"User {user.userId} undisliked restaurant number {place_id}"
+    }
 
 
