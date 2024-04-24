@@ -4,7 +4,7 @@ from app.db.database import Base
 
 class User(Base):
     __tablename__ = "users"
-    user_id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_name = Column(String, index=True)
     email = Column(String, index=True, unique=True)
     avatar_url = Column(String, index=True)
@@ -13,7 +13,7 @@ class User(Base):
 
 class Map(Base):
     __tablename__ = "maps"
-    map_id = Column(Integer, primary_key=True, index=True)
+    map_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     map_name = Column(String, index=True)
     lat = Column(Integer, index=True)
     lng = Column(Integer, index=True)
@@ -37,14 +37,14 @@ class Restaurant(Base):
 
 class Comment(Base):
     __tablename__ = "comments"
-    comment_id = Column(String, primary_key=True, index=True)
+    comment_id = Column(String, primary_key=True, index=True, autoincrement=True)
     author = Column(Integer, ForeignKey("users.user_id"),nullable=False)
     rest_id = Column(String, ForeignKey("restaurants.google_place_id"), nullable=False)
     content = Column(String, index=True)
     
 class Diary(Base):
     __tablename__ = "diaries"
-    diary_id = Column(Integer, primary_key=True, index=True)
+    diary_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     title = Column(String, index=True)
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     rest_id = Column(String, ForeignKey("restaurants.google_place_id"), nullable=False)
@@ -75,7 +75,7 @@ class UserRestRate(Base):
 
 class UserFollow(Base):
     __tablename__ = "user_follow"
-    follow_id = Column(Integer, primary_key=True, index=True)
+    follow_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     follow = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     be_followed = Column(Integer, ForeignKey("users.user_id"), nullable=False)
 
@@ -96,7 +96,7 @@ class UserMapCollect(Base):
 
 class Reply(Base):
     __tablename__ = "replies"
-    reply_id = Column(Integer, primary_key=True, index=True)
+    reply_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     diary_id = Column(Integer, ForeignKey("diaries.diary_id"), nullable=False)
     author = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     content = Column(String, index=True)
