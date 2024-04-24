@@ -52,6 +52,7 @@ class Diary(Base):
     created = Column(DateTime, default=datetime.now)
     content = Column(String, index=True)
     photos = Column(ARRAY(String), index=True)
+    created = Column(DateTime, default=datetime.now)
 
 class UserRestCollect(Base):
     __tablename__ = "user_rest_collect"
