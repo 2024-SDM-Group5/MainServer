@@ -7,12 +7,9 @@ class User(Base):
     user_id = Column(Integer, primary_key=True, index=True)
     user_name = Column(String, index=True)
     email = Column(String, index=True, unique=True)
-    follow = Column(Integer, index=True)
-    followed = Column(Integer, index=True)
     avatar_url = Column(String, index=True)
     created = Column(DateTime, default=datetime.now)
     map_id = Column(Integer, index=True)
-    post_cnt = Column(Integer, index=True)
 
 class Map(Base):
     __tablename__ = "maps"
@@ -25,7 +22,6 @@ class Map(Base):
     tags =  Column(ARRAY(String), index=True)
     created = Column(DateTime, default=datetime.now)
     rest_ids =  Column(ARRAY(String), index=True)
-    collect_cnt = Column(Integer, default=0,index=True)
     view_cnt = Column(Integer, default=0,index=True)
     
 class Restaurant(Base):
@@ -37,10 +33,7 @@ class Restaurant(Base):
     rating = Column(Integer, index=True)
     address = Column(String, index=True)
     telephone = Column(String, index=True)
-    collect_cnt = Column(Integer, default=0,index=True)
     view_cnt = Column(Integer, default=0, index=True)
-    like_cnt = Column(Integer, default=0, index=True)
-    dislike_cnt = Column(Integer, default=0,index=True)
 
 class Comment(Base):
     __tablename__ = "comments"
@@ -58,8 +51,6 @@ class Diary(Base):
     created = Column(DateTime, default=datetime.now)
     content = Column(String, index=True)
     photos = Column(ARRAY(String), index=True)
-    collect_cnt = Column(Integer, default=0,index=True)
-    like_cnt = Column(Integer, default=0,index=True)
 
 class UserRestCollect(Base):
     __tablename__ = "user_rest_collect"
@@ -76,6 +67,12 @@ class UserRestDislike(Base):
     user_id = Column(Integer, ForeignKey("users.user_id"), primary_key=True, nullable=False)
     rest_id = Column(String, ForeignKey("restaurants.google_place_id"), primary_key=True, nullable=False)
 
+class UserRestRate(Base):
+    __tablename__ = "user_rest_rate"
+    user_id = Column(Integer, ForeignKey("users.user_id"), primary_key=True, nullable=False)
+    rest_id = Column(String, ForeignKey("restaurants.google_place_id"), primary_key=True, nullable=False)
+    rating = Column(Integer, index=True)
+
 class UserFollow(Base):
     __tablename__ = "user_follow"
     follow_id = Column(Integer, primary_key=True, index=True)
@@ -91,7 +88,6 @@ class UserDiaryLike(Base):
     __tablename__ = "user_diary_like"
     user_id = Column(Integer, ForeignKey("users.user_id"), primary_key=True,nullable=False)
     diary_id = Column(Integer, ForeignKey("diaries.diary_id"), primary_key=True,nullable=False)
-
 
 class UserMapCollect(Base):
     __tablename__ = "user_map_collect"
