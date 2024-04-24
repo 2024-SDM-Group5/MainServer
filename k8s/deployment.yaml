@@ -26,10 +26,10 @@ spec:
               cpu: "500m"
               memory: "1000Mi"
          env:
-           - name: DATABASE_URL
-             valueFrom:
-               secretKeyRef:
-                 name: myapp-secrets
-                 key: DATABASE_URL
+             - name: DATABASE_URL
+               valueFrom:
+                 secretKeyRef:
+                   name: myapp-secrets
+                   key: DATABASE_URL
       imagePullSecrets:
         - name: github-registry
