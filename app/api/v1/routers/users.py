@@ -20,22 +20,8 @@ async def get_users_detail(
     q: Optional[str] = Query(None),
     db = Depends(get_db)
 ):
-    user_list = crud.get_users(db)
-
-    return_list = [
-        UserDisplay(
-            id=user.user_id,
-            displayName=user.user_name,
-            avatarUrl=user.avatar_url,
-            following=0,
-            followed=0,
-            mapId=None,
-            postCount=0,
-            isFollowing=False
-        ) for user in user_list
-    ]
-
-    return return_list
+    user_list = crud.get_users(db, skip=offset, limit=limit)
+    return user_list
 
 
 @router.post("/login", response_model=UserLoginInfo)
@@ -66,6 +52,7 @@ async def update_user(
     if user_update.avatarUrl is not None:
         db_user["avatar_url"] = user_update.avatarUrl
     modified_user = crud.update_user(db, id, db_user)
+
     if modified_user is None:
         return {
             "success": False,
@@ -109,37 +96,21 @@ async def unfollow_user(
 async def get_my_detail(user: UserLoginInfo = Depends(get_current_user), db = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=401, detail="Unauthenticated")
-    fetched = crud.get_user(db, user.userId)
-    returned = UserDisplay(
-        id=fetched.user_id,
-        displayName=fetched.user_name,
-        avatarUrl=fetched.avatar_url,
-        following=0,
-        followed=0,
-        mapId=None,
-        postCount=0,
-        isFollowing=False
-    )
-    return returned
+    fetched = crud.get_user(db, user.userId, -1)
+    if not fetched:
+        raise HTTPException(status_code=404, detail="User not found")
+    return fetched
 
 
 @router.get("/{id}", response_model=UserDisplay)
 async def get_user_detail(id: int = Path(...), user: Optional[UserLoginInfo] = Depends(get_optional_user), db = Depends(get_db)):
-    fetched = crud.get_user(db, id)
+    auth_user_id = -1
+    if user:
+        auth_user_id = user.userId
+    fetched = crud.get_user(db, id, auth_user_id)
     if not fetched:
         raise HTTPException(status_code=404, detail="User not found")
-    print(fetched.user_id, fetched.user_name, fetched.avatar_url)
-    returned = UserDisplay(
-        id=fetched.user_id,
-        displayName=fetched.user_name,
-        avatarUrl=fetched.avatar_url,
-        following=0,
-        followed=0,
-        mapId=None,
-        postCount=0,
-        isFollowing=False
-    )
-    return returned
+    return fetched
 
 
 @router.get("/{id}/diaries", response_model=List[SimplifiedDiary])
