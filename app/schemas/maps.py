@@ -66,7 +66,6 @@ class PaginatedMapResponse(BaseModel):
 class CompleteMap(SimplifiedMap):
     """For complete maps in the Get_Maps listing"""
     description: str
-    restaurants: List[str]
 
 CompleteMap_Ex = {
     "id": 11,
@@ -82,7 +81,6 @@ CompleteMap_Ex = {
     "collectCount": 189,
     "hasCollected": False,
     "description": "這是一張台北市飲料地圖，收錄了許多好喝的飲料店！",
-    "restaurants": ["ChIJexSiLC-qQjQR0LgDorEWhig"]
 }
 
 
