@@ -60,12 +60,12 @@ async def update_user(
 ):
     if not user or user.userId != id:
         raise HTTPException(status_code=403, detail="Forbidden")
-    db_user = {
-        "user_name": user_update.displayName,
-        "avatar_url": user_update.avatarUrl
-    }
+    db_user = {}
+    if user_update.displayName is not None:
+        db_user["user_name"] = user_update.displayName
+    if user_update.avatarUrl is not None:
+        db_user["avatar_url"] = user_update.avatarUrl
     modified_user = crud.update_user(db, id, db_user)
-    print(modified_user)
     if modified_user is None:
         return {
             "success": False,
@@ -128,6 +128,7 @@ async def get_user_detail(id: int = Path(...), user: Optional[UserLoginInfo] = D
     fetched = crud.get_user(db, id)
     if not fetched:
         raise HTTPException(status_code=404, detail="User not found")
+    print(fetched.user_id, fetched.user_name, fetched.avatar_url)
     returned = UserDisplay(
         id=fetched.user_id,
         displayName=fetched.user_name,

@@ -10,6 +10,7 @@ class Reply(BaseModel):
     createdAt: datetime
 
 class DiaryDisplay(BaseModel):
+    id: int
     username: str
     userId: int
     avatarUrl: HttpUrl = Field(None)
