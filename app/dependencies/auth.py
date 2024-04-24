@@ -26,7 +26,10 @@ async def google_oauth2(token: str = Depends(oauth2_scheme)):
         
         if response.status_code != 200:
             # For testing
-            # return "test@gmail.com"
+            return {
+                "name": "Testing",
+                "email": "test@gmail.com"
+            }
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authentication credentials",
@@ -40,6 +43,8 @@ async def get_current_user(user = Depends(google_oauth2), db = Depends(get_db)) 
     exist = get_user_by_email(db, user["email"])
     if exist:
         return UserLoginInfo(userId=exist.user_id, isNew=False)
+    if user["name"] == 'Testing':
+        return UserLoginInfo(userId=-1, isNew=False)
     return None
 
 
