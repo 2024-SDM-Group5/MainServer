@@ -1,10 +1,11 @@
 from fastapi import Depends, HTTPException, status, Header
 from fastapi.security import OAuth2PasswordBearer
 from app.schemas.users import UserLoginInfo
+from app.crud.users import get_user_by_email
+from app.dependencies.db import get_db
 import httpx
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
 
 async def get_optional_token(authorization: str = Header(None)):
     try:
@@ -14,9 +15,9 @@ async def get_optional_token(authorization: str = Header(None)):
                 return token
     except Exception as e:
         return None
+    
 
-
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserLoginInfo:
+async def google_oauth2(token: str = Depends(oauth2_scheme)):
     async with httpx.AsyncClient() as client:
         response = await client.get(
             f"https://oauth2.googleapis.com/tokeninfo",
@@ -25,7 +26,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserLoginInfo
         
         if response.status_code != 200:
             # For testing
-            return UserLoginInfo(userId=-1, isNew=False)
+            # return "test@gmail.com"
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authentication credentials",
@@ -33,14 +34,18 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserLoginInfo
             )
         
         token_data = response.json()
-        email = token_data.get("email")
-        ## TODO: Interact with database to fetch user info
-        # user = fetch_or_create_user(email)
-        # return user
-        return UserLoginInfo(userId=1, isNew=False)
+        return token_data
 
-async def get_optional_user(token: str = Depends(get_optional_token)):
+async def get_current_user(user = Depends(google_oauth2), db = Depends(get_db)) -> UserLoginInfo:
+    exist = get_user_by_email(db, user["email"])
+    if exist:
+        return UserLoginInfo(userId=exist.user_id, isNew=False)
+    return None
+
+
+async def get_optional_user(token: str = Depends(get_optional_token), db = Depends(get_db)):
     try:
-        return await get_current_user(token)
+        user = await google_oauth2(token)
+        return await get_current_user(user, db)
     except HTTPException as e:
         return None
