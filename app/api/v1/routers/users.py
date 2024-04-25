@@ -13,8 +13,7 @@ router = APIRouter(prefix="/api/v1/users", tags=["user"])
 
 @router.get("", response_model=List[UserDisplay])
 async def get_users_detail(
-    orderBy: str = Query("collectCount", enum=["collectCount", "createTime"]),
-    tags: Optional[List[str]] = Query(None),
+    orderBy: str = Query("createTime", enum=["following", "createTime"]),
     offset: int = Query(0, ge=0),
     limit: int = Query(10, ge=1, le=100),
     reverse: bool = Query(False),
@@ -23,13 +22,13 @@ async def get_users_detail(
 ):
     query_params = {
         "orderBy": orderBy,
-        "tags": tags,
         "offset": offset,
         "limit": limit,
-        "reverse": reverse,
         "q": q
     }
     user_list = crud_user.get_users(db, query_params)
+    if reverse:
+        user_list = user_list[::-1]
     return user_list
 
 

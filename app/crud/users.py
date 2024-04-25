@@ -3,7 +3,7 @@ from app.models.dbModel import User, UserFollow, Diary, Map
 from sqlalchemy import func, select, exists, distinct
 from app.schemas.users import UserDisplay
 
-def query_sql(user_id = None, auth_user_id: int = -1):
+def query_sql(user_id = None, auth_user_id: int = -1, name_match: str = None, order_by: str = None):
     Followings = aliased(UserFollow)
     Followers = aliased(UserFollow)
 
@@ -27,7 +27,16 @@ def query_sql(user_id = None, auth_user_id: int = -1):
 
     if user_id:
         stmt = stmt.where(User.user_id == user_id)
+
+    if name_match:
+        stmt = stmt.where(User.user_name.like(f"%{name_match}%"))
+    
     stmt = stmt.group_by(User.user_id, Map.map_id)
+    if order_by:
+        if order_by == "following":
+            stmt = stmt.order_by(func.count(distinct(Followings.be_followed)).desc())
+        elif order_by == "createTime":
+            stmt = stmt.order_by(User.created.desc())
     return stmt
 
 def get_user(db: Session, user_id: int, auth_user_id: int) -> User:
@@ -41,8 +50,8 @@ def get_user(db: Session, user_id: int, auth_user_id: int) -> User:
 def get_user_by_email(db: Session, email: str) -> User:
     return db.query(User).filter(User.email == email).first()
 
-def get_users(db: Session, query_params) -> list[User]:
-    stmt = query_sql().limit(query_params["limit"]).offset(query_params["skip"])
+def get_users(db: Session, query) -> list[User]:
+    stmt = query_sql(name_match=query["q"], order_by=query["orderBy"]).limit(query["limit"]).offset(query["offset"])
     result = db.execute(stmt).all()
     return [UserDisplay(**user._asdict()) for user in result]
 
