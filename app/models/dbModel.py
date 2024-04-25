@@ -30,7 +30,6 @@ class Restaurant(Base):
     rest_name = Column(String, index=True)
     lat = Column(Integer, index=True)
     lng = Column(Integer, index=True)
-    rating = Column(Integer, index=True)
     address = Column(String, index=True)
     telephone = Column(String, index=True)
     created = Column(DateTime, default=datetime.now)
