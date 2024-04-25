@@ -47,6 +47,7 @@ class Diary(Base):
     __tablename__ = "diaries"
     diary_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     title = Column(String, index=True)
+    avatar_url = Column(String, index=True)
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     rest_id = Column(String, ForeignKey("restaurants.google_place_id"), nullable=False)
     created = Column(DateTime, default=datetime.now)
