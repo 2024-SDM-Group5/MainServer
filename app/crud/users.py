@@ -41,8 +41,8 @@ def get_user(db: Session, user_id: int, auth_user_id: int) -> User:
 def get_user_by_email(db: Session, email: str) -> User:
     return db.query(User).filter(User.email == email).first()
 
-def get_users(db: Session, skip: int = 0, limit: int = 100) -> list[User]:
-    stmt = query_sql().limit(limit).offset(skip)
+def get_users(db: Session, query_params) -> list[User]:
+    stmt = query_sql().limit(query_params["limit"]).offset(query_params["skip"])
     result = db.execute(stmt).all()
     return [UserDisplay(**user._asdict()) for user in result]
 
@@ -51,6 +51,10 @@ def create_user(db: Session, user: dict) -> User:
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+    db_map = Map(map_name="我的地圖", author=db_user.user_id)
+    db.add(db_map)
+    db.commit()
+    db.refresh(db_map)
     return db_user
 
 def update_user(db: Session, user_id: int, updates: dict) -> User:

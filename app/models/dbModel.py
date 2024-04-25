@@ -37,7 +37,7 @@ class Restaurant(Base):
 
 class Comment(Base):
     __tablename__ = "comments"
-    comment_id = Column(String, primary_key=True, index=True, autoincrement=True)
+    comment_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     author = Column(Integer, ForeignKey("users.user_id"),nullable=False)
     rest_id = Column(String, ForeignKey("restaurants.google_place_id"), nullable=False)
     content = Column(String, index=True)

@@ -26,6 +26,8 @@ async def get_place_details(place_id):
     address = place.get('formatted_address', '')
     telephone = place.get('formatted_phone_number', '')
     rating = place.get('rating', 0)
+    photos = place.get('photos', [])
+    photos = [photo['photo_reference'] for photo in photos]
     return {
         "name": name, 
         "address": address, 
@@ -33,4 +35,5 @@ async def get_place_details(place_id):
         "location": location, 
         "telephone": telephone, 
         "rating": rating,
+        "photos": photos
     }

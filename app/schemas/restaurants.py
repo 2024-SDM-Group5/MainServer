@@ -81,6 +81,7 @@ class PaginatedRestaurantResponse(BaseModel):
 
 class Restaurant(SimplifiedRestaurant):
     diaries: list[SimplifiedDiary] = Field([], description="List of diaries associated with the restaurant")
+    photos: list[str] = Field([], description="List of photo references for the restaurant")
 class PostResponse(BaseModel):
     success: bool
     message: str
