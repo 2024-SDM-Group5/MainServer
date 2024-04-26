@@ -1,4 +1,6 @@
 import googlemaps
+import requests
+import json
 from app.schemas.restaurants import Restaurant
 from app.core.config import Config
 
@@ -37,3 +39,37 @@ async def get_place_details(place_id):
         "rating": rating,
         "photos": photos
     }
+
+def search_nearby_restaurants(lat, lng, radius=1000):
+    """
+    Search for nearby restaurants around a given latitude and longitude with a given radius.
+    """
+
+def search_nearby_restaurants(keyword, lat, lng, radius=1000):
+    url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+    params = {
+        'keyword': keyword,
+        'language': 'zh-TW',
+        'location': f'{lat},{lng}',
+        'radius': 1000,
+        'type': 'restaurant',
+        'key': api_key,
+        'opennow': True
+    }
+    
+    response = requests.get(url, params=params)
+    results = response.json().get('results', [])
+    filtered_results = []
+    for result in results:
+        filtered_result = {
+            'name': result.get('name'),
+            'rating': result.get('rating'),
+            'user_ratings_total': result.get('user_ratings_total'),
+            'place_id': result.get('place_id'),
+            'types': result.get('types'),
+            'price_level': result.get('price_level')
+        }
+        filtered_results.append(filtered_result)
+ 
+    return filtered_results
+
