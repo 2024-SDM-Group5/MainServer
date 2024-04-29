@@ -50,9 +50,10 @@ class Diary(Base):
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     rest_id = Column(String, ForeignKey("restaurants.google_place_id"), nullable=False)
     created = Column(DateTime, default=datetime.now)
+    item = Column(ARRAY(String), index=True)
     content = Column(String, index=True)
     photos = Column(ARRAY(String), index=True)
-    created = Column(DateTime, default=datetime.now)
+    
 
 class UserRestCollect(Base):
     __tablename__ = "user_rest_collect"
