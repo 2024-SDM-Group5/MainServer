@@ -19,6 +19,7 @@ class DiaryDisplay(BaseModel):
     photos: list[HttpUrl]
     content: str
     replies: list[Reply] = [] 
+    items: list[str] = []
     favCount: int = Field(..., ge=0) 
     collectCount: int = Field(..., ge=0)
     createdAt: datetime
@@ -34,6 +35,7 @@ DiaryDisplay_Ex = {
     "avatarUrl": "https://picsum.photos/200",
     "photos": ["https://picsum.photos/200", "https://picsum.photos/200"],
     "content": "Tried this amazing boba place today!",
+    "items": ["boba", "milk tea", "taro milk tea"],
     "replies": [
         {
             "id": 1,
@@ -55,10 +57,13 @@ class DiaryCreate(BaseModel):
     restaurantId: str
     photos: list[HttpUrl]
     content: str
+    items: list[str] = Field(None)
 
-class DiaryUpdate(BaseModel): 
+class DiaryUpdate(BaseModel):
+    restaurantId: str
     photos: list[HttpUrl] = Field(None)
     content: str = Field(None)
+    items: list[str] = Field(None)
 
 class DiaryResponse(BaseModel):
     success: bool
