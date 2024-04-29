@@ -15,6 +15,7 @@ class SimplifiedRestaurant(BaseModel):
     hasCollected: bool = Field(False, description="Flag indicating if the restaurant is currently being collected by the authenticated user")
     hasLiked: bool = Field(False, description="Flag indicating if the restaurant is currently being liked by the authenticated user")
     hasDisliked: bool = Field(False, description="Flag indicating if the restaurant is currently being disliked by the authenticated user")
+    photoUrl: HttpUrl = Field(None)
 
 SimplifiedRestaurant_Ex = [
     {
@@ -33,7 +34,8 @@ SimplifiedRestaurant_Ex = [
         "dislikeCount": 100,
         "hasCollected": False,
         "hasLiked": False,
-        "hasDisliked": False
+        "hasDisliked": False,
+        "photoUrl": "https://picsum.photos/200"
     },
     {
         "name": "Restaurant 2",
@@ -51,7 +53,8 @@ SimplifiedRestaurant_Ex = [
         "dislikeCount": 100,
         "hasCollected": True,
         "hasLiked": False,
-        "hasDisliked": False
+        "hasDisliked": False,
+        "photoUrl": "https://picsum.photos/200"
     },
     {
         "name": "Restaurant 3",
@@ -69,7 +72,8 @@ SimplifiedRestaurant_Ex = [
         "dislikeCount": 100,
         "hasCollected": False,
         "hasLiked": False,
-        "hasDisliked": True
+        "hasDisliked": True,
+        "photoUrl": "https://picsum.photos/200"
     }
 ]
 
