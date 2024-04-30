@@ -5,11 +5,11 @@ class SimplifiedMap(BaseModel):
     id: int
     name: str
     iconUrl: HttpUrl = Field(None)
-    author: str
+    #author: str
     authorId: int
     viewCount: int
-    collectCount: int
-    hasCollected: bool = Field(..., description="Flag indicating if the map is currently being favorited by the authenticated user")
+    #collectCount: int
+    #hasCollected: bool = Field(..., description="Flag indicating if the map is currently being favorited by the authenticated user")
     center: dict  # Contains 'lat' and 'lng' fields
 
 SimplifiedMaps_Ex =  [
@@ -17,11 +17,11 @@ SimplifiedMaps_Ex =  [
         "id": 11,
         "name": "台北飲料地圖",
         "iconUrl": "https://picsum.photos/200",
-        "author": "enip",
+        #"author": "enip",
         "authorId": 1,
         "viewCount": 441,
-        "collectCount": 189,
-        "hasCollected": True,
+        #"collectCount": 189,
+        #"hasCollected": True,
         "center": {
             "lat": 25.0329694,
             "lng": 121.5654118
@@ -31,11 +31,11 @@ SimplifiedMaps_Ex =  [
         "id": 12,
         "name": "飲料導覽",
         "iconUrl": "https://picsum.photos/200",
-        "author": "enip",
+        #"author": "enip",
         "authorId": 1,
         "viewCount": 370,
-        "collectCount": 152,
-        "hasCollected": False,
+        #"collectCount": 152,
+        #"hasCollected": False,
         "center": {
             "lat": 25.0329694,
             "lng": 121.5654118
@@ -45,11 +45,11 @@ SimplifiedMaps_Ex =  [
         "id": 13,
         "name": "夜市飲料攻略",
         "iconUrl": "https://picsum.photos/200",
-        "author": "enip",
+        #"author": "enip",
         "authorId": 1,
         "viewCount": 295,
-        "collectCount": 117,
-        "hasCollected": False,
+        #"collectCount": 117,
+        #"hasCollected": False,
         "center": {
             "lat": 25.0329694,
             "lng": 121.5654118
@@ -66,6 +66,9 @@ class PaginatedMapResponse(BaseModel):
 class CompleteMap(SimplifiedMap):
     """For complete maps in the Get_Maps listing"""
     description: str
+    author: str
+    collectCount: int
+    hasCollected: bool = Field(..., description="Flag indicating if the map is currently being favorited by the authenticated user")
 
 CompleteMap_Ex = {
     "id": 11,

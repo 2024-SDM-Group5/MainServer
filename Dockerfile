@@ -1,17 +1,14 @@
 # Use an official Python runtime as a parent image
 FROM python:3.12-slim
 RUN apt-get update \
-    && apt-get -y install libpq-dev gcc
+    && apt-get -y install libpq-dev gcc\
+    && pip install pipenv && pip install openai
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
 # Copy the current directory contents into the container at /usr/src/app
 COPY . .
-
-# Install pipenv
-RUN pip install pipenv
-RUN pip install openai
 
 # Install dependencies using Pipenv
 # --system: Install packages into the system Python, not a virtualenv

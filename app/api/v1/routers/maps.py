@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Query, Path
-from typing import List, Optional 
+from typing import List, Optional
 import logging
 from fastapi.exceptions import HTTPException
 
@@ -113,11 +113,17 @@ async def modify_map(
 
 # --- Delete_Map ---
 @router.delete("/{id}", response_model=PostResponse)
-async def delete_map(id: int = Path(...), user: UserLoginInfo = Depends(get_current_user)):
-    return {
-        "success": True,
-        "message": f"Map number {id} deleted successfully",
-    }
+async def delete_map(id: int = Path(...), user: UserLoginInfo = Depends(get_current_user), db = Depends(get_db)):
+    try:
+        map_delete = crud_map.delete_map(db,id)
+        logger.info(f"{map_delete} deleted successfully")
+        return {
+            "success": True,
+            "message": f"Map number {id} deleted successfully",
+        }
+    except Exception as e:
+        logger.error(f"Error in delete_map: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error - Failed to delete map")
 
 @router.post("/{id}/collect", response_model=PostResponse)
 async def collect_map(id: int = Path(...), user: UserLoginInfo = Depends(get_current_user)):

@@ -11,6 +11,7 @@ from app.schemas.maps import (
     CompleteMap_Ex
 )
 from app.schemas.users import UserLoginInfo
+from fastapi.exceptions import HTTPException
 
 def get_map(db: Session, map_id: int) -> Map:
     return db.query(Map).filter(Map.map_id == map_id).first()
@@ -23,7 +24,7 @@ def create_map(db: Session, map_data: MapCreate, user: UserLoginInfo) -> Map:
         map_name=map_data.map_name,
         lat=map_data.lat,
         lng=map_data.lng,
-        icon_url=map_data.icon_url,
+        icon_url=str(map_data.icon_url),
         author=user.userId,  
         tags=map_data.tags,
         rest_ids=map_data.rest_ids 
@@ -33,9 +34,9 @@ def create_map(db: Session, map_data: MapCreate, user: UserLoginInfo) -> Map:
         db.commit()
         db.refresh(db_map)
         return db_map.map_id
-    except:
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=400, detail="Failed to create map")
+        raise HTTPException(status_code=400, detail=f"Failed to create map{e}")
 
 def update_map(db: Session, map_id: int, updates: dict) -> Map:
     map_obj = db.query(Map).filter(Map.map_id == map_id).first()
@@ -48,9 +49,11 @@ def update_map(db: Session, map_id: int, updates: dict) -> Map:
 
 def delete_map(db: Session, map_id: int):
     map_obj = db.query(Map).filter(Map.map_id == map_id).first()
-    if map_obj:
+    if map_obj!=None:
         db.delete(map_obj)
         db.commit()
+        return True
+    return False
 
 def get_maps_by_user(db: Session, user_id: int, skip: int = 0, limit: int = 100) -> list[Map]:
     return db.query(Map).filter(Map.author == user_id).offset(skip).limit(limit).all()
