@@ -85,11 +85,13 @@ CompleteMap_Ex = {
 
 
 class MapCreate(BaseModel):
-    name: str
-    iconUrl: HttpUrl = Field(None)
-    description: str
-    tags: list[str] = Field([])
-    restaurants: list[str] = Field([])
+    map_name: str
+    lat: float
+    lng: float
+    icon_url: str
+    tags: List[str] = []
+    rest_ids: List[str] = []
+
 
 class MapUpdate(MapCreate):
     id: int

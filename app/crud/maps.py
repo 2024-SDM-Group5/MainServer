@@ -1,5 +1,16 @@
 from sqlalchemy.orm import Session
 from app.models.dbModel import Map
+from app.schemas.maps import (
+    MapCreate, 
+    MapUpdate, 
+    CompleteMap, 
+    PostResponse,
+    PutResponse, 
+    PaginatedMapResponse,
+    SimplifiedMaps_Ex,
+    CompleteMap_Ex
+)
+from app.schemas.users import UserLoginInfo
 
 def get_map(db: Session, map_id: int) -> Map:
     return db.query(Map).filter(Map.map_id == map_id).first()
@@ -7,19 +18,24 @@ def get_map(db: Session, map_id: int) -> Map:
 def get_maps(db: Session, skip: int = 0, limit: int = 100) -> list[Map]:
     return db.query(Map).offset(skip).limit(limit).all()
 
-def create_map(db: Session, map_data: dict) -> Map:
+def create_map(db: Session, map_data: MapCreate, user: UserLoginInfo) -> Map:
     db_map = Map(
-        map_name=map_data['map_name'],
-        lat=map_data['lat'],
-        lng=map_data['lng'],
-        icon_url=map_data['icon_url'],
-        author=map_data['author'],
-        tags=map_data['tags']
+        map_name=map_data.map_name,
+        lat=map_data.lat,
+        lng=map_data.lng,
+        icon_url=map_data.icon_url,
+        author=user.userId,  
+        tags=map_data.tags,
+        rest_ids=map_data.rest_ids 
     )
-    db.add(db_map)
-    db.commit()
-    db.refresh(db_map)
-    return db_map
+    try:
+        db.add(db_map)
+        db.commit()
+        db.refresh(db_map)
+        return db_map.map_id
+    except:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Failed to create map")
 
 def update_map(db: Session, map_id: int, updates: dict) -> Map:
     map_obj = db.query(Map).filter(Map.map_id == map_id).first()
