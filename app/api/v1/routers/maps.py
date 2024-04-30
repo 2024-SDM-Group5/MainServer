@@ -1,8 +1,11 @@
 from fastapi import APIRouter, Depends, Query, Path
 from typing import List, Optional 
 import logging
+from fastapi.exceptions import HTTPException
 
+from app.models.dbModel import Map
 from app.schemas.maps import (
+    SimplifiedMap,
     MapCreate, 
     MapUpdate, 
     CompleteMap, 
@@ -35,20 +38,24 @@ async def get_maps(
 ):
     try:
         map_lists = crud_map.get_maps(db, offset, limit)
-        return {
-            "total": map_list["total"],
-            "maps":  map_list["maps"],
-            "limit":  map_list["limit"],
-            "offset":  map_list["offset"]
-         }
+        map_results = [SimplifiedMap(
+                id=permap.map_id,
+                name=permap.map_name,
+                iconUrl=permap.icon_url,
+                center={"lat": permap.lat, "lng": permap.lng},
+                authorId=permap.author,
+                viewCount=permap.view_cnt,
+            )for permap in map_lists]
+        return PaginatedMapResponse(
+            total=len(map_lists),
+            maps=map_results,
+            limit=limit,
+            offset=offset
+        )
     except Exception as e:
         logger.error(f"Error in get_maps: {e}")
-        return {
-            "total": 0,
-            "maps":  [],
-            "limit":  0,
-            "offset":  0
-        }
+        logger.error(f"Error in get_maps: {map_lists}")
+        raise HTTPException(status_code=500, detail="Internal Server Error - Failed to get maps")
 
 # --- Create_Map ---
 @router.post("", response_model=PostResponse, status_code=201)

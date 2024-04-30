@@ -88,7 +88,7 @@ class MapCreate(BaseModel):
     map_name: str
     lat: float
     lng: float
-    icon_url: str
+    icon_url: HttpUrl = Field(None)
     tags: List[str] = []
     rest_ids: List[str] = []
 
