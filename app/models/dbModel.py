@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ARRAY, ForeignKey
+from sqlalchemy import Column, Integer, Float, String, DateTime, Boolean, ARRAY, ForeignKey
 from datetime import datetime
 from app.db.database import Base
 
@@ -15,8 +15,8 @@ class Map(Base):
     __tablename__ = "maps"
     map_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     map_name = Column(String, index=True)
-    lat = Column(Integer, index=True)
-    lng = Column(Integer, index=True)
+    lat = Column(Float, index=True)
+    lng = Column(Float, index=True)
     icon_url = Column(String, index=True)
     author = Column(Integer, ForeignKey("users.user_id"),nullable=False)
     tags =  Column(ARRAY(String), index=True)
@@ -28,8 +28,8 @@ class Restaurant(Base):
     __tablename__ = "restaurants"
     google_place_id = Column(String, primary_key=True, index=True)
     rest_name = Column(String, index=True)
-    lat = Column(Integer, index=True)
-    lng = Column(Integer, index=True)
+    lat = Column(Float, index=True)
+    lng = Column(Float, index=True)
     address = Column(String, index=True)
     telephone = Column(String, index=True)
     created = Column(DateTime, default=datetime.now)
