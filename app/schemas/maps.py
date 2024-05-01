@@ -65,9 +65,11 @@ class PaginatedMapResponse(BaseModel):
 
 class CompleteMap(SimplifiedMap):
     """For complete maps in the Get_Maps listing"""
-    description: str
+    #description: str 
+    #db not implemented
     author: str
-    collectCount: int
+    #collectCount: int
+    #db not implemented
     hasCollected: bool = Field(..., description="Flag indicating if the map is currently being favorited by the authenticated user")
 
 CompleteMap_Ex = {
@@ -83,7 +85,7 @@ CompleteMap_Ex = {
     "viewCount": 441,
     "collectCount": 189,
     "hasCollected": False,
-    "description": "這是一張台北市飲料地圖，收錄了許多好喝的飲料店！",
+    #"description": "這是一張台北市飲料地圖，收錄了許多好喝的飲料店！",
 }
 
 

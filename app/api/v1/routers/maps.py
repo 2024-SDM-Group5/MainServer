@@ -21,6 +21,7 @@ from app.schemas.restaurants import PaginatedRestaurantResponse, SimplifiedResta
 from app.dependencies.db import get_db
 from app.services.cloud_storage import save_file_to_gcs
 import app.crud.maps as crud_map
+import app.crud.users as crud_user
 
 router = APIRouter(prefix="/api/v1/maps", tags=["maps"])
 logger = logging.getLogger(__name__)
@@ -59,7 +60,11 @@ async def get_maps(
 
 # --- Create_Map ---
 @router.post("", response_model=PostResponse, status_code=201)
-async def create_map(map_data: MapCreate, user: UserLoginInfo = Depends(get_current_user), db = Depends(get_db)):
+async def create_map(
+        map_data: MapCreate, 
+        user: UserLoginInfo = Depends(get_current_user), 
+        db = Depends(get_db)
+):
     try:
         map_res = crud_map.create_map(db, map_data, user)
         return {
@@ -74,12 +79,28 @@ async def create_map(map_data: MapCreate, user: UserLoginInfo = Depends(get_curr
 @router.get("/{id}", response_model=CompleteMap)
 async def get_single_map(
     id: int = Path(...), 
-    user: Optional[UserLoginInfo] = Depends(get_optional_user)
+    user: Optional[UserLoginInfo] = Depends(get_optional_user),
+    db = Depends(get_db)
 ):
-    map_data = CompleteMap_Ex
-    if user:
-        map_data["hasCollected"] = True
-    return map_data
+    try:
+        permap = crud_map.get_map(db, id)
+        user_info = crud_user.get_user_by_id(db, user.userId)
+        map_result = CompleteMap(
+                id=permap.map_id,
+                name=permap.map_name,
+                iconUrl=permap.icon_url,
+                center={"lat": permap.lat, "lng": permap.lng},
+                authorId=permap.author,
+                viewCount=permap.view_cnt,
+                author=user_info.user_name, 
+                hasCollected=False,
+                )
+        if user:
+            map_result.hasCollected = True
+        return map_result
+    except Exception as e:
+        logger.error(f"Error in get_maps: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error - Failed to get maps")
 
 @router.get("/{id}/restaurants", response_model=PaginatedRestaurantResponse)
 async def get_restaurants(
@@ -103,13 +124,24 @@ async def get_restaurants(
 async def modify_map(
     map_data: MapUpdate, 
     id: int = Path(...),
-    user: UserLoginInfo = Depends(get_current_user)
+    user: UserLoginInfo = Depends(get_current_user),
+    db = Depends(get_db),
 ):
-    return {
-        "success": True,
-        "message": f"Map data {id} updated successfully",
-    }
+    try:
+        update_dict = {key: value for key, value in map_data.dict().items() if value is not None and key != "id"}
+        logger.info(f"update_dict: {update_dict}")
+        update_result = crud_map.update_map(db, id, update_dict)
 
+        if update_result:
+            return {
+                "success": True,
+                "message": f"Map data {id} updated successfully",
+            }
+        else:
+            raise HTTPException(status_code=404, detail=f"Map {id} not found")
+    except Exception as e:
+        logger.error(f"Error in modify_map: {e}")
+        raise HTTPException(status_code=500, detail=f"Internal Server Error - Failed to modify map: {e}")
 
 # --- Delete_Map ---
 @router.delete("/{id}", response_model=PostResponse)

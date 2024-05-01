@@ -40,11 +40,26 @@ def create_map(db: Session, map_data: MapCreate, user: UserLoginInfo) -> Map:
 
 def update_map(db: Session, map_id: int, updates: dict) -> Map:
     map_obj = db.query(Map).filter(Map.map_id == map_id).first()
-    if map_obj:
-        for key, value in updates.items():
-            setattr(map_obj, key, value)
+    if not map_obj:
+        # 如果没有找到对象，抛出 HTTPException 或返回 None
+        raise HTTPException(status_code=404, detail=f"Map with id {map_id} not found")
+    
+    for key, value in updates.items():
+        if hasattr(map_obj, key):
+            if key == "icon_url":
+                setattr(map_obj, key, str(value))
+            else:
+                setattr(map_obj, key, value)
+        else:
+            raise HTTPException(status_code=400, detail=f"Invalid key {key}")
+    try:
         db.commit()
-        db.refresh(map_obj)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to update Map due to: {str(e)}")
+        
+    db.refresh(map_obj)
+
     return map_obj
 
 def delete_map(db: Session, map_id: int):
