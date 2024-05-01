@@ -32,6 +32,8 @@ class Restaurant(Base):
     lng = Column(Float, index=True)
     address = Column(String, index=True)
     telephone = Column(String, index=True)
+    rating = Column(Float, index=True)
+    photo_url = Column(String, index=True)
     created = Column(DateTime, default=datetime.now)
     view_cnt = Column(Integer, default=0, index=True)
 

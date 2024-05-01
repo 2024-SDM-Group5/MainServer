@@ -77,6 +77,13 @@ SimplifiedRestaurant_Ex = [
     }
 ]
 
+class CreateRestaurant(BaseModel):
+    name: str
+    location: dict
+    rating: float = Field(None, ge=0, le=5)
+    place_id: str
+    photo_url: str = Field(None)
+
 class PaginatedRestaurantResponse(BaseModel):
     total: int
     restaurants: List[SimplifiedRestaurant]

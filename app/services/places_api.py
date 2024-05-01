@@ -40,10 +40,6 @@ async def get_place_details(place_id):
         "photos": photos
     }
 
-def search_nearby_restaurants(lat, lng, radius=1000):
-    """
-    Search for nearby restaurants around a given latitude and longitude with a given radius.
-    """
 
 def search_nearby_restaurants(keyword, lat, lng, radius=1000):
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
@@ -54,22 +50,25 @@ def search_nearby_restaurants(keyword, lat, lng, radius=1000):
         'radius': 1000,
         'type': 'restaurant',
         'key': api_key,
-        'opennow': True
+        'opennow': True,
     }
     
     response = requests.get(url, params=params)
     results = response.json().get('results', [])
-    filtered_results = []
-    for result in results:
-        filtered_result = {
+
+    filtered_results = [
+        {
             'name': result.get('name'),
             'rating': result.get('rating'),
             'user_ratings_total': result.get('user_ratings_total'),
             'place_id': result.get('place_id'),
             'types': result.get('types'),
-            'price_level': result.get('price_level')
-        }
-        filtered_results.append(filtered_result)
- 
+            'price_level': result.get('price_level'),
+            'location': result.get('geometry', {}).get('location', {}),
+            'photo_url': result.get('photos', [{}])[0].get('photo_reference', '')
+        } 
+        for result in results
+    ]
+    print(filtered_results[0])
     return filtered_results
 

@@ -4,6 +4,8 @@ from app.services.places_api import get_place_details
 from app.schemas.users import UserLoginInfo
 from typing import Optional, List
 from app.dependencies.auth import get_optional_user, get_current_user
+from app.services.places_api import search_nearby_restaurants
+import app.crud.restaurants as crud_rest 
 
 router = APIRouter(prefix="/api/v1/restaurants", tags=["restaurants"])
 
@@ -45,6 +47,10 @@ async def collect_restaurant(
     place_id: str = Path(...),
     user: UserLoginInfo = Depends(get_current_user)
 ):  
+    try:
+        crud_rest.collect_restaurant(user.userId, place_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     return {
         "success": True, 
         "message": f"User {user.userId} collected place {place_id}"
@@ -55,6 +61,10 @@ async def uncollect_restaurant(
     place_id: str = Path(...),
     user: UserLoginInfo = Depends(get_current_user)
 ):
+    try:
+        crud_rest.uncollect_restaurant(user.userId, place_id)
+    except Exception as e:  
+        raise HTTPException(status_code=500, detail=str(e))
     return {
         "success": True, 
         "message": f"User {user.userId} uncollected place {place_id}"
@@ -66,6 +76,10 @@ async def like_restaurant(
     place_id: str = Path(...),
     user: UserLoginInfo = Depends(get_current_user)
 ):  
+    try:
+        crud_rest.like_restaurant(user.userId, place_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     return {
         "success": True, 
         "message": f"User {user.userId} liked restaurant number {place_id}"
@@ -76,6 +90,10 @@ async def unlike_restaurant(
     place_id: str = Path(...),
     user: UserLoginInfo = Depends(get_current_user)
 ):  
+    try:
+        crud_rest.unlike_restaurant(user.userId, place_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     return {
         "success": True, 
         "message": f"User {user.userId} unlike restaurant number {place_id}"
@@ -86,6 +104,10 @@ async def dislike_restaurant(
     place_id: str = Path(...),
     user: UserLoginInfo = Depends(get_current_user)
 ):  
+    try:
+        crud_rest.dislike_restaurant(user.userId, place_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     return {
         "success": True, 
         "message": f"User {user.userId} disliked restaurant number {place_id}"
@@ -96,6 +118,10 @@ async def undislike_restaurant(
     place_id: str = Path(...),
     user: UserLoginInfo = Depends(get_current_user)
 ):  
+    try:
+        crud_rest.undislike_restaurant(user.userId, place_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     return {
         "success": True, 
         "message": f"User {user.userId} undisliked restaurant number {place_id}"
