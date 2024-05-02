@@ -1,14 +1,93 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import insert
 from app.models.dbModel import Restaurant, UserRestCollect, UserRestLike, UserRestDislike
-from app.schemas.restaurants import CreateRestaurant
-def get_restaurant(db: Session, place_id: str) -> Restaurant:
-    return db.query(Restaurant).filter(Restaurant.google_place_id == place_id).first()
+from app.schemas.restaurants import CreateRestaurant, SimplifiedRestaurant, FullCreateRestaurant, Restaurant as ClientRestaurant
+from sqlalchemy import func, select, and_, literal, distinct, exists
+from sqlalchemy.orm import Session, aliased
 
-def get_restaurants(db: Session, skip: int = 0, limit: int = 10) -> list[Restaurant]:
-    return db.query(Restaurant).offset(skip).limit(limit).all()
+def base_query(auth_user_id: int):
+    Collects = aliased(UserRestCollect)
+    Likes = aliased(UserRestLike)
+    Dislikes = aliased(UserRestDislike)
+    stmt = select(
+        Restaurant.rest_name.label('name'),
+        func.json_build_object('lat', Restaurant.lat, 'lng', Restaurant.lng).label('location'),
+        Restaurant.telephone,
+        Restaurant.address,
+        Restaurant.rating,
+        Restaurant.google_place_id.label('placeId'),
+        Restaurant.photo_url.label('photoUrl'),
+        literal(0).label('viewCount'), 
+        func.count(distinct(Collects.user_id)).label('collectCount'),
+        func.count(distinct(Likes.user_id)).label('likeCount'),
+        func.count(distinct(Dislikes.user_id)).label('dislikeCount'),
+        exists(
+            select(1).where(
+                UserRestCollect.user_id == auth_user_id, UserRestCollect.rest_id == Restaurant.google_place_id
+            )
+        ).label('hasCollected'),
+        exists(select(1).where(and_(UserRestLike.user_id == auth_user_id, UserRestLike.rest_id == Restaurant.google_place_id))).label('hasLiked'),
+        exists(select(1).where(and_(UserRestDislike.user_id == auth_user_id, UserRestDislike.rest_id == Restaurant.google_place_id))).label('hasDisliked')
+    ).outerjoin(Collects, Collects.rest_id == Restaurant.google_place_id) \
+     .outerjoin(Likes, Likes.rest_id == Restaurant.google_place_id) \
+     .outerjoin(Dislikes, Dislikes.rest_id == Restaurant.google_place_id) \
+     .group_by(Restaurant.google_place_id)
+    
+    return stmt
+
+def query_restaurants(session: Session, query_params: dict):
+    order_by = query_params.get("orderBy")
+    offset = query_params.get("offset", 0)
+    limit = query_params.get("limit", 10)
+    q = query_params.get("q")
+    lat = query_params.get("lat")
+    lng = query_params.get("lng")
+    distance = query_params.get("distance")
+    auth_user_id = query_params.get("auth_user_id", -1)
+
+    stmt = base_query(auth_user_id)
+
+    radius = distance / 100000
+    stmt = stmt.where(
+        and_(
+            Restaurant.lat.between(lat - radius, lat + radius),
+            Restaurant.lng.between(lng - radius, lng + radius)
+        )
+    )
+
+    if q:
+        stmt = stmt.where(Restaurant.rest_name.like(f"%{q}%"))
+    # Ordering
+    if order_by:
+        if order_by == "rating":
+            stmt = stmt.order_by(Restaurant.rating.desc())
+        elif order_by == "name":
+            stmt = stmt.order_by(Restaurant.rest_name)
+
+    # Pagination
+    stmt = stmt.offset(offset).limit(limit)
+    count_query = select(func.count(Restaurant.google_place_id)) \
+        .where(
+            and_(
+                Restaurant.lat.between(lat - radius, lat + radius),
+                Restaurant.lng.between(lng - radius, lng + radius)
+            )    
+        )
+    count = session.execute(count_query).scalar()
+    results = session.execute(stmt).all()
+    restaurants = [SimplifiedRestaurant(**result._asdict()) for result in results]
+
+    return count, restaurants
+
+def get_restaurant(db: Session, place_id: str, user_id: int) -> Restaurant:
+    stmt = base_query(user_id)
+    stmt = stmt.where(Restaurant.google_place_id == place_id)
+    result = db.execute(stmt).first()
+    restaurant = ClientRestaurant(**result._asdict(), diaries=[])
+    return restaurant
 
 def bulk_insert(db: Session, restaurants: list[CreateRestaurant]) -> list[Restaurant]:
+    
     db_restaurants = [{
         "google_place_id": restaurant.place_id,
         "rest_name": restaurant.name,
@@ -33,21 +112,32 @@ def bulk_insert(db: Session, restaurants: list[CreateRestaurant]) -> list[Restau
     db.commit()
     return db_restaurants
 
-def create_restaurant(db: Session, restaurant_data: CreateRestaurant) -> Restaurant:
-    db_restaurant = Restaurant(
-        google_place_id=restaurant_data.place_id,
-        rest_name=restaurant_data.name,
-        lat=restaurant_data.location.lat,
-        lng=restaurant_data.location.lng,
-        rating=restaurant_data.rating,
-        photo_url=restaurant_data.photoUrl
-    )
-    existing_restaurant = db.query(Restaurant).filter(Restaurant.google_place_id == restaurant_data.placeId).first()
+def create_update_restaurant(db: Session, restaurant: FullCreateRestaurant) -> Restaurant:
+    existing_restaurant = db.query(Restaurant).filter(Restaurant.google_place_id == restaurant.place_id).first()
     if existing_restaurant:
-        for key, value in restaurant_data.items():
+        updates = {
+            "rest_name": restaurant.name,
+            "address": restaurant.address,
+            "lat": restaurant.location.get('lat', 0),
+            "lng": restaurant.location.get('lng', 0),
+            "telephone": restaurant.telephone,
+            "rating": restaurant.rating,
+            "photo_url": restaurant.photo_url
+        }
+        for key, value in updates.items():
             setattr(existing_restaurant, key, value)
         db_restaurant = existing_restaurant
     else:
+        db_restaurant = Restaurant(
+            rest_name=restaurant.name,
+            address=restaurant.address,
+            google_place_id=restaurant.place_id,
+            lat=restaurant.location.get('lat', 0),
+            lng=restaurant.location.get('lng', 0),
+            telephone=restaurant.telephone,
+            rating=restaurant.rating,
+            photo_url=restaurant.photo_url
+        )
         db.add(db_restaurant)
     db.commit()
     db.refresh(db_restaurant)
@@ -80,12 +170,20 @@ def uncollect_restaurant(db: Session, user_id: int, place_id: str):
         db.commit()
 
 def like_restaurant(db: Session, user_id: int, place_id: str):
-    like_entry = UserRestLike(user_id=user_id, rest_id=place_id)
-    dislike_entry = UserRestDislike(user_id=user_id, rest_id=place_id)
-    if dislike_entry:
-        db.delete(dislike_entry)
-    db.add(like_entry)
-    db.commit()
+    existing_dislike = db.query(UserRestDislike).filter_by(user_id=user_id, rest_id=place_id).first()
+    if existing_dislike:
+        db.delete(existing_dislike)
+    existing_like = db.query(UserRestLike).filter_by(user_id=user_id, rest_id=place_id).first()
+    if not existing_like:
+        like_entry = UserRestLike(user_id=user_id, rest_id=place_id)
+        db.add(like_entry)
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()  # Rollback in case of any error
+        raise Exception(f"Failed to like the restaurant: {e}")
+    return f"Restaurant {place_id} liked successfully!"
+
 
 def unlike_restaurant(db: Session, user_id: int, place_id: str):
     like_entry = db.query(UserRestLike).filter(UserRestLike.user_id == user_id, UserRestLike.rest_id == place_id).first()
@@ -94,12 +192,19 @@ def unlike_restaurant(db: Session, user_id: int, place_id: str):
         db.commit()
 
 def dislike_restaurant(db: Session, user_id: int, place_id: str):
-    dislike_entry = UserRestDislike(user_id=user_id, rest_id=place_id)
-    like_entry = UserRestLike(user_id=user_id, rest_id=place_id)
-    if like_entry:
-        db.delete(like_entry)
-    db.add(dislike_entry)
-    db.commit()
+    existing_like = db.query(UserRestLike).filter_by(user_id=user_id, rest_id=place_id).first()
+    if existing_like:
+        db.delete(existing_like)
+    existing_dislike = db.query(UserRestDislike).filter_by(user_id=user_id, rest_id=place_id).first()
+    if not existing_dislike:
+        dislike_entry = UserRestDislike(user_id=user_id, rest_id=place_id)
+        db.add(dislike_entry)
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise Exception(f"Failed to dislike the restaurant: {e}")
+    return f"Restaurant {place_id} disliked successfully!"
 
 def undislike_restaurant(db: Session, user_id: int, place_id: str):
     dislike_entry = db.query(UserRestDislike).filter(UserRestDislike.user_id == user_id, UserRestDislike.rest_id == place_id).first()

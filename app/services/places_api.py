@@ -1,7 +1,7 @@
 import googlemaps
 import requests
 import json
-from app.schemas.restaurants import Restaurant
+from app.schemas.restaurants import FullCreateRestaurant
 from app.core.config import Config
 
 api_key = Config.GOOGLE_MAPS_API_KEY
@@ -21,25 +21,24 @@ async def get_place_details(place_id):
     Get details about a specific place.
     """
     gmaps = googlemaps.Client(key=api_key)
-    place = gmaps.place(place_id)['result']
+    place = gmaps.place(place_id, language='zh-TW')['result']
     place_id = place['place_id']
     location = place['geometry']['location']
     name = place.get('name', '')
     address = place.get('formatted_address', '')
     telephone = place.get('formatted_phone_number', '')
     rating = place.get('rating', 0)
-    photos = place.get('photos', [])
-    photos = [photo['photo_reference'] for photo in photos]
-    return {
-        "name": name, 
-        "address": address, 
-        "placeId": place_id,
-        "location": location, 
-        "telephone": telephone, 
-        "rating": rating,
-        "photos": photos
-    }
-
+    photos = place.get('photos', [{}])
+    photoUrl = photos[0].get('photo_reference', '')
+    return FullCreateRestaurant(
+        name=name,
+        address=address,
+        place_id=place_id,
+        location=location,
+        telephone=telephone,
+        rating=rating,
+        photo_url=photoUrl
+    )
 
 def search_nearby_restaurants(keyword, lat, lng, radius=1000):
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
@@ -47,7 +46,7 @@ def search_nearby_restaurants(keyword, lat, lng, radius=1000):
         'keyword': keyword,
         'language': 'zh-TW',
         'location': f'{lat},{lng}',
-        'radius': 1000,
+        'radius': radius,
         'type': 'restaurant',
         'key': api_key,
         'opennow': True,
@@ -69,6 +68,5 @@ def search_nearby_restaurants(keyword, lat, lng, radius=1000):
         } 
         for result in results
     ]
-    print(filtered_results[0])
     return filtered_results
 
