@@ -51,7 +51,7 @@ def get_user_rest(db:Session, user_id:int, orderBy:str, offset:int, limit:int, q
             address=rest_instance.address,
             location={"lat": rest_instance.lat, "lng": rest_instance.lng},
             telephone=rest_instance.telephone,
-            rating=statistics.mean(list(map(lambda x: x.rating, db.query(UserRestRate).filter(UserRestRate.rest_id == rest_instance.google_place_id).all()))),
+            rating=rest_instance.rating,
             placeId=rest_instance.google_place_id,
             viewCount=rest_instance.view_cnt,
             collectCount=db.query(UserRestCollect).filter(UserRestCollect.rest_id == rest_instance.google_place_id).count(),
