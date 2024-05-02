@@ -3,9 +3,7 @@ from app.schemas.diaries import SimplifiedDiary
 from typing import List
 class SimplifiedRestaurant(BaseModel):
     name: str
-    address: str
     location: dict
-    telephone: str
     rating: float = Field(None, ge=0, le=5)
     placeId: str
     viewCount: int = Field(0, ge=0)  
@@ -15,7 +13,7 @@ class SimplifiedRestaurant(BaseModel):
     hasCollected: bool = Field(False, description="Flag indicating if the restaurant is currently being collected by the authenticated user")
     hasLiked: bool = Field(False, description="Flag indicating if the restaurant is currently being liked by the authenticated user")
     hasDisliked: bool = Field(False, description="Flag indicating if the restaurant is currently being disliked by the authenticated user")
-    photoUrl: HttpUrl = Field(None)
+    photoUrl: str = Field(None)
 
 SimplifiedRestaurant_Ex = [
     {
@@ -24,8 +22,6 @@ SimplifiedRestaurant_Ex = [
             "lat": 25.0329694,
             "lng": 121.5654177
         },
-        "address": "台北市大安區辛亥路二段170號",
-        "telephone": "02 1234 5554",
         "rating": 4.5,
         "placeId": "ChIJexSiLC-qQjQR0LgDorEWhig",
         "viewCount": 400,
@@ -43,8 +39,6 @@ SimplifiedRestaurant_Ex = [
             "lat": 25.0329694,
             "lng": 121.5654177
         },
-        "address": "台北市大安區辛亥路二段170號",
-        "telephone": "02 1234 5554",
         "rating": 4.2,
         "placeId": "ChIJexSiLC-qQjQR0LgDorEWhig",
         "viewCount": 400,
@@ -62,8 +56,6 @@ SimplifiedRestaurant_Ex = [
             "lat": 25.0329694,
             "lng": 121.5654177
         },
-        "address": "台北市大安區辛亥路二段170號",
-        "telephone": "02 1234 5554",
         "rating": 4.2,
         "placeId": "ChIJexSiLC-qQjQR0LgDorEWhig",
         "viewCount": 400,
@@ -77,6 +69,17 @@ SimplifiedRestaurant_Ex = [
     }
 ]
 
+class CreateRestaurant(BaseModel):
+    name: str
+    location: dict
+    rating: float = Field(None, ge=0, le=5)
+    place_id: str
+    photo_url: str = Field(None)
+
+class FullCreateRestaurant(CreateRestaurant):
+    address: str
+    telephone: str
+
 class PaginatedRestaurantResponse(BaseModel):
     total: int
     restaurants: List[SimplifiedRestaurant]
@@ -84,8 +87,10 @@ class PaginatedRestaurantResponse(BaseModel):
     offset: int
 
 class Restaurant(SimplifiedRestaurant):
+    telephone: str
+    address: str
     diaries: list[SimplifiedDiary] = Field([], description="List of diaries associated with the restaurant")
-    photos: list[str] = Field([], description="List of photo references for the restaurant")
+    # photos: list[str] = Field([], description="List of photo references for the restaurant")
 class PostResponse(BaseModel):
     success: bool
     message: str
