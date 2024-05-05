@@ -64,7 +64,7 @@ def update_map(db: Session, map_id: int, updates: dict) -> Map:
 
 def delete_map(db: Session, map_id: int):
     map_obj = db.query(Map).filter(Map.map_id == map_id).first()
-    if map_obj!=None:
+    if map_obj != None:
         db.delete(map_obj)
         db.commit()
         return True

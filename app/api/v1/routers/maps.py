@@ -114,6 +114,8 @@ async def get_restaurants(
     sw: Optional[str] = Query(None),
     ne: Optional[str] = Query(None),
 ):
+    if id == 0:
+        raise HTTPException(status_code=307, detail="Temporary Redirect", headers={"Location": "/api/v1/restaurants"})
     restaurants = SimplifiedRestaurant_Ex
     total = len(restaurants)
     restaurants = restaurants[offset:offset+limit]
