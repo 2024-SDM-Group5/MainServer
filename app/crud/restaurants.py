@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import insert
-from app.models.dbModel import Restaurant, UserRestCollect, UserRestLike, UserRestDislike
+from app.models.dbModel import Restaurant, UserRestCollect, UserRestLike, UserRestDislike, Map
 from app.schemas.restaurants import CreateRestaurant, SimplifiedRestaurant, FullCreateRestaurant, Restaurant as ClientRestaurant
 from sqlalchemy import func, select, and_, literal, distinct, exists
 from sqlalchemy.orm import Session, aliased
@@ -159,15 +159,35 @@ def delete_restaurant(db: Session, place_id: str):
         db.commit()
 
 def collect_restaurant(db: Session, user_id: int, place_id: str):
-    collection_entry = UserRestCollect(user_id=user_id, rest_id=place_id)
-    db.add(collection_entry)
-    db.commit()
+    collection_entry = db.query(UserRestCollect).filter(UserRestCollect.user_id == user_id, UserRestCollect.rest_id == place_id).first()
+    if not collection_entry:
+        collection_entry = UserRestCollect(user_id=user_id, rest_id=place_id)
+        db.add(collection_entry)
+        db.commit()
+    
+    map = db.query(Map).filter(Map.author == user_id).first()
+    if map:
+        restaurants = map.rest_ids.copy()
+        if place_id not in restaurants:
+            restaurants.append(place_id)
+            setattr(map, "rest_ids", restaurants)
+            db.commit()
+            db.refresh(map)
+    return collection_entry
 
 def uncollect_restaurant(db: Session, user_id: int, place_id: str):
     collection_entry = db.query(UserRestCollect).filter(UserRestCollect.user_id == user_id, UserRestCollect.rest_id == place_id).first()
     if collection_entry:
         db.delete(collection_entry)
         db.commit()
+    map = db.query(Map).filter(Map.author == user_id).first()
+    if map:
+        restaurants = map.rest_ids.copy()
+        if place_id in restaurants:
+            restaurants.remove(place_id)
+            setattr(map, "rest_ids", restaurants)
+            db.commit()
+            db.refresh(map)
 
 def like_restaurant(db: Session, user_id: int, place_id: str):
     existing_dislike = db.query(UserRestDislike).filter_by(user_id=user_id, rest_id=place_id).first()
