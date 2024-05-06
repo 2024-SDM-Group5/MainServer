@@ -20,7 +20,7 @@ def get_user_map(db:Session, user_id:int, orderBy:str, offset:int, limit:int, q:
         SimplifiedMap(
             id=map_instance.map_id,
             name=map_instance.map_name,
-            iconUrl=map_instance.icon_url,
+            iconUrl=map_instance.icon_url if map_instance.icon_url != None else "",
             author=db.query(User).filter(User.user_id == map_instance.author).first().user_name,
             authorId=map_instance.author,
             viewCount=map_instance.view_cnt,
