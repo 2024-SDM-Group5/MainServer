@@ -154,15 +154,31 @@ async def delete_map(id: int = Path(...), user: UserLoginInfo = Depends(get_curr
         raise HTTPException(status_code=500, detail="Internal Server Error - Failed to delete map")
 
 @router.post("/{id}/collect", response_model=PostResponse)
-async def collect_map(id: int = Path(...), user: UserLoginInfo = Depends(get_current_user)):
+async def collect_map(
+    id: int = Path(...), 
+    user: UserLoginInfo = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    try:
+        crud_map.collect_map(db, user.userId, id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     return {
-        "success": True,
-        "message": f"{user.userId} has collected map number {id}",
+        "success": True, 
+        "message": f"User {user.userId} collected map {id}"
     }
 
 
 @router.delete("/{id}/collect", response_model=PostResponse)
-async def uncollect_map(id: int = Path(...), user: UserLoginInfo = Depends(get_current_user)):
+async def uncollect_map(
+    id: int = Path(...), 
+    user: UserLoginInfo = Depends(get_current_user),
+    db = Depends(get_db)
+):
+    try:
+        crud_map.uncollect_map(db, user.userId, id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     return {
         "success": True,
         "message": f"{user.userId} has uncollected map number {id}",

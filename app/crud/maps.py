@@ -176,3 +176,14 @@ def get_restaurants(db: Session, map_id: int, query_params: dict):
     count = len(results)
     restaurants = [SimplifiedRestaurant(**result._asdict()) for result in results]
     return count, restaurants
+
+def collect_map(db: Session, user_id: int, map_id: int):
+    collection_entry = UserMapCollect(user_id=user_id, map_id=map_id)
+    db.add(collection_entry)
+    db.commit()
+
+def uncollect_map(db: Session, user_id: int, map_id: str):
+    collection_entry = db.query(UserMapCollect).filter(UserMapCollect.user_id == user_id, UserMapCollect.map_id == map_id).first()
+    if collection_entry:
+        db.delete(collection_entry)
+        db.commit()
