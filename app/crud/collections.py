@@ -48,9 +48,7 @@ def get_user_rest(db:Session, user_id:int, orderBy:str, offset:int, limit:int, q
     simplified_rests = [
         SimplifiedRestaurant(
             name=rest_instance.rest_name,
-            address=rest_instance.address,
             location={"lat": rest_instance.lat, "lng": rest_instance.lng},
-            telephone=rest_instance.telephone,
             rating=rest_instance.rating,
             placeId=rest_instance.google_place_id,
             viewCount=rest_instance.view_cnt,

@@ -5,7 +5,7 @@ class Reply(BaseModel):
     id: int
     authorId: int
     username: str
-    avatarUrl: HttpUrl = Field(None)
+    avatarUrl: str = Field(None)
     content: str
     createdAt: datetime
 
@@ -13,7 +13,7 @@ class DiaryDisplay(BaseModel):
     id: int
     username: str
     userId: int
-    avatarUrl: HttpUrl = Field(None)
+    avatarUrl: str = Field(None)
     restaurantId: str
     restaurantName: str
     photos: list[HttpUrl]
@@ -55,13 +55,12 @@ DiaryDisplay_Ex = {
 
 class DiaryCreate(BaseModel):
     restaurantId: str
-    photos: list[HttpUrl]
+    photos: list[str]
     content: str
     items: list[str] = Field(None)
 
 class DiaryUpdate(BaseModel):
-    restaurantId: str
-    photos: list[HttpUrl] = Field(None)
+    photos: list[str] = Field(None)
     content: str = Field(None)
     items: list[str] = Field(None)
 

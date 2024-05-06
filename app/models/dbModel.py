@@ -41,19 +41,18 @@ class Restaurant(Base):
 class Comment(Base):
     __tablename__ = "comments"
     comment_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    author = Column(Integer, ForeignKey("users.user_id"),nullable=False)
-    diary_id = Column(Integer, ForeignKey("diaries.diary_id"),nullable=False)
+    diary_id = Column(Integer, ForeignKey("diaries.diary_id"), nullable=False)
+    author = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     content = Column(String, index=True)
+    created = Column(DateTime, default=datetime.now)
     
 class Diary(Base):
     __tablename__ = "diaries"
     diary_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    title = Column(String, index=True)
-    avatar_url = Column(String, index=True)
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     rest_id = Column(String, ForeignKey("restaurants.google_place_id"), nullable=False)
     created = Column(DateTime, default=datetime.now)
-    item = Column(ARRAY(String), index=True)
+    items = Column(ARRAY(String), index=True)
     content = Column(String, index=True)
     photos = Column(ARRAY(String), index=True)
     
