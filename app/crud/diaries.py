@@ -5,7 +5,13 @@ from app.schemas.diaries import DiaryCreate, DiaryUpdate, SimplifiedDiary, Diary
 from typing import List
 from fastapi import HTTPException
 
-def simplified_query(auth_user_id: int = -1, order_by: str = None, following: bool = False, q: str = None):
+def simplified_query(
+    auth_user_id: int = -1, 
+    order_by: str = None, 
+    following: bool = False, 
+    q: str = None,
+    author_id: int = None
+):
     stmt = select(
         Diary.diary_id.label('id'),
         Restaurant.rest_name.label('restaurantName'),
@@ -15,6 +21,9 @@ def simplified_query(auth_user_id: int = -1, order_by: str = None, following: bo
     if following:
         stmt = stmt.join(UserFollow, UserFollow.be_followed == Diary.user_id) \
         .where(UserFollow.follow == auth_user_id)
+    
+    if author_id:
+        stmt = stmt.where(Diary.user_id == author_id)
 
     if order_by == "collectCount":
         stmt = stmt.outerjoin(UserDiaryCollect, UserDiaryCollect.diary_id == Diary.diary_id) \

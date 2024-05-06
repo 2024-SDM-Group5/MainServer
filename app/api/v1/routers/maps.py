@@ -12,14 +12,11 @@ from app.schemas.maps import (
     PostResponse,
     PutResponse, 
     PaginatedMapResponse,
-    SimplifiedMaps_Ex,
-    CompleteMap_Ex
 )
 from app.dependencies.auth import get_current_user, get_optional_user
 from app.schemas.users import UserLoginInfo
-from app.schemas.restaurants import PaginatedRestaurantResponse, SimplifiedRestaurant_Ex
+from app.schemas.restaurants import PaginatedRestaurantResponse
 from app.dependencies.db import get_db
-from app.services.cloud_storage import save_file_to_gcs
 import app.crud.maps as crud_map
 import app.crud.users as crud_user
 

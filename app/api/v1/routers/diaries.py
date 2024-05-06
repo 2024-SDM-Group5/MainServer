@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Path, Query, HTTPException
 from typing import List, Optional 
 
 from app.schemas.diaries import (
-    DiaryCreate, DiaryUpdate, DiaryDisplay, DiaryResponse, SimplifiedDiary, SimplifiedDiary_Ex, DiaryDisplay_Ex)
+    DiaryCreate, DiaryUpdate, DiaryDisplay, DiaryResponse, SimplifiedDiary)
 from app.dependencies.auth import get_current_user, get_optional_user
 from app.schemas.users import UserLoginInfo
 from app.dependencies.db import get_db

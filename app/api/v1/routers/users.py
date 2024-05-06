@@ -135,8 +135,11 @@ async def get_user_detail(id: int = Path(...), user: Optional[UserLoginInfo] = D
 
 
 @router.get("/{id}/diaries", response_model=List[SimplifiedDiary])
-async def get_user_diaries(id: int = Path(...)):
-    diaries = SimplifiedDiary_Ex
+async def get_user_diaries(
+    id: int = Path(...),
+    db = Depends(get_db)
+):
+    diaries = crud_user.get_user_diaries(db, user_id=id)
     return diaries
 
 

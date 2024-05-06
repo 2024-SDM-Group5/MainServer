@@ -2,6 +2,8 @@ from sqlalchemy.orm import Session, aliased
 from app.models.dbModel import User, UserFollow, Diary, Map
 from sqlalchemy import func, select, exists, distinct
 from app.schemas.users import UserDisplay
+from app.schemas.diaries import SimplifiedDiary
+from app.crud.diaries import simplified_query
 
 def query_sql(user_id = None, auth_user_id: int = -1, name_match: str = None, order_by: str = None):
     Followings = aliased(UserFollow)
@@ -83,3 +85,9 @@ def delete_user(db: Session, user_id: int):
     if user:
         db.delete(user)
         db.commit()
+
+def get_user_diaries(db: Session, user_id: int):
+    stmt = simplified_query(author_id=user_id, order_by="createTime")
+    result = db.execute(stmt).all()
+    diaries = [SimplifiedDiary(**diary._asdict()) for diary in result]
+    return diaries

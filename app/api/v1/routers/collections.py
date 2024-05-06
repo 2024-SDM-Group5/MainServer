@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Query
 from typing import List, Optional
-from app.schemas.maps import SimplifiedMap, SimplifiedMaps_Ex
-from app.schemas.diaries import SimplifiedDiary, SimplifiedDiary_Ex
-from app.schemas.restaurants import SimplifiedRestaurant, SimplifiedRestaurant_Ex
+from app.schemas.maps import SimplifiedMap
+from app.schemas.diaries import SimplifiedDiary
+from app.schemas.restaurants import SimplifiedRestaurant
 from app.schemas.users import UserLoginInfo
 from app.dependencies.auth import get_current_user
 from app.dependencies.db import get_db
