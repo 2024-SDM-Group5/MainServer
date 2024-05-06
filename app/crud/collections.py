@@ -20,7 +20,7 @@ def get_user_map(db:Session, user_id:int, orderBy:str, offset:int, limit:int, q:
         SimplifiedMap(
             id=map_instance.map_id,
             name=map_instance.map_name,
-            iconUrl=map_instance.icon_url,
+            iconUrl=map_instance.icon_url if map_instance.icon_url != None else "",
             author=db.query(User).filter(User.user_id == map_instance.author).first().user_name,
             authorId=map_instance.author,
             viewCount=map_instance.view_cnt,
@@ -70,19 +70,22 @@ def get_user_diary(db:Session, user_id:int, offset:int, limit:int, q: str) -> li
     diaries = db.query(UserDiaryCollect).filter(UserDiaryCollect.user_id == user_id).all()
     diary_ids = list(map(lambda x: x.diary_id, diaries))
     query = db.query(Diary).filter(Diary.diary_id.in_(diary_ids))
-    if q != "":
-        query = query.filter(Diary.title.ilike(f"%{q}%"))
     query = query.order_by(Diary.created.desc())
     query = query.offset(offset).limit(limit)
     diary_collections = query.all()
     simplified_diaries = [
         SimplifiedDiary(
             id=diary_instance.diary_id,
-            imageUrl=diary_instance.avatar_url,
+            imageUrl=diary_instance.photos[0],
             restaurantName=db.query(Restaurant).filter(Restaurant.google_place_id == diary_instance.rest_id).first().rest_name
         )
         for diary_instance in diary_collections
     ]
+    if q != "":
+        for diary in simplified_diaries:
+            rest_name = diary.restaurantName
+            if q not in rest_name:
+                simplified_diaries.remove(diary)
     
     return simplified_diaries
 
