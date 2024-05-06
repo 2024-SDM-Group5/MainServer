@@ -18,13 +18,15 @@ async def get_users_detail(
     limit: int = Query(10, ge=1, le=100),
     reverse: bool = Query(False),
     q: Optional[str] = Query(None),
+    user: Optional[UserLoginInfo] = Depends(get_optional_user),
     db = Depends(get_db)
 ):
     query_params = {
         "orderBy": orderBy,
         "offset": offset,
         "limit": limit,
-        "q": q
+        "q": q,
+        "auth_user_id": user.userId if user else -1 
     }
     user_list = crud_user.get_users(db, query_params)
     if reverse:

@@ -62,17 +62,6 @@ async def get_single_restaurant(
     create_update_restaurant(db, restaurant)
     restaurant = get_restaurant(db, place_id, user.userId if user else -1)
     return restaurant
-    if user:
-        restaurant["hasCollected"] = True
-        restaurant["hasLiked"] = True
-    else:
-        restaurant["hasDisliked"] = True
-    return Restaurant(**restaurant, 
-                      viewCount=0, 
-                      collectCount=0, 
-                      likeCount=0, 
-                      dislikeCount=0,
-                      diaries=[])
  
 @router.post("/{place_id}/collect", response_model=PostResponse, status_code=201)
 async def collect_restaurant(

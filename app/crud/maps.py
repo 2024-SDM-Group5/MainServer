@@ -2,36 +2,81 @@ from sqlalchemy.orm import Session
 from app.models.dbModel import Map
 from app.schemas.maps import (
     MapCreate, 
-    MapUpdate, 
+    SimplifiedMap, 
     CompleteMap, 
-    PostResponse,
-    PutResponse, 
-    PaginatedMapResponse,
-    SimplifiedMaps_Ex,
-    CompleteMap_Ex
 )
 from sqlalchemy import func, select, and_, literal, distinct, exists, any_
 from sqlalchemy.orm import Session, aliased
-from app.models.dbModel import Restaurant, UserRestCollect, UserRestLike, UserRestDislike
-from app.schemas.restaurants import CreateRestaurant, SimplifiedRestaurant, FullCreateRestaurant, Restaurant as ClientRestaurant
+from app.models.dbModel import User, Restaurant, UserRestCollect, UserRestLike, UserRestDislike, UserMapCollect
+from app.schemas.restaurants import SimplifiedRestaurant
 from app.schemas.users import UserLoginInfo
 from fastapi.exceptions import HTTPException
 
-def get_map(db: Session, map_id: int) -> Map:
-    return db.query(Map).filter(Map.map_id == map_id).first()
+def query_sql(map_id = None, auth_user_id: int = -1, name_match: str = None, order_by: str = None):
+    Collect = aliased(UserMapCollect)
+    stmt = select(
+        Map.map_id.label('id'),
+        Map.map_name.label('name'),
+        Map.icon_url.label('iconUrl'),
+        User.user_name.label('author'),
+        Map.author.label('authorId'),
+        Map.view_cnt.label('viewCount'),
+        Map.description,
+        func.count(distinct(Collect.user_id)).label('collectCount'),
+        exists(
+            select(1).where(
+                UserMapCollect.user_id == auth_user_id, UserMapCollect.map_id == Map.map_id
+            )
+        ).label('hasCollected'),
+        func.json_build_object('lat', func.avg(Restaurant.lat), 'lng', func.avg(Restaurant.lng)).label('center')
+    ).outerjoin(User, Map.author == User.user_id) \
+    .outerjoin(Collect, Collect.map_id == Map.map_id) \
+    .outerjoin(Restaurant, Restaurant.google_place_id == any_(Map.rest_ids))
 
-def get_maps(db: Session, skip: int = 0, limit: int = 100) -> list[Map]:
-    return db.query(Map).offset(skip).limit(limit).all()
+    if map_id:
+        stmt = stmt.where(Map.map_id == map_id)
+
+    if name_match:
+        stmt = stmt.where(User.user_name.like(f"%{name_match}%"))
+    
+    stmt = stmt.group_by(Map.map_id, User.user_name)
+    if order_by:
+        if order_by == "collectCount":
+            stmt = stmt.order_by(func.count(distinct(Collect.user_id)).desc())
+        elif order_by == "createTime":
+            stmt = stmt.order_by(Map.created.desc())
+    return stmt
+
+
+def get_map(db: Session, map_id: int, auth_user_id: int) -> Map:
+    stmt = query_sql(map_id=map_id, auth_user_id=auth_user_id)
+    result = db.execute(stmt).first()
+    restaurant = CompleteMap(
+        **{k: v for k, v in result._asdict().items() 
+            if k != 'iconUrl' or v is not None
+        }
+    )
+    return restaurant
+
+def get_maps(db: Session, query: dict) -> list[Map]:
+    stmt = query_sql(auth_user_id=query["auth_user_id"], name_match=query["q"], order_by=query["orderBy"]).limit(query["limit"]).offset(query["offset"])
+    result = db.execute(stmt).all()
+    return [
+        SimplifiedMap(
+            **{k: v for k, v in map_._asdict().items() 
+                if k != 'iconUrl' or v is not None
+            }
+        ) 
+        for map_ in result
+    ]
 
 def create_map(db: Session, map_data: MapCreate, user: UserLoginInfo) -> Map:
     db_map = Map(
-        map_name=map_data.map_name,
-        lat=map_data.lat,
-        lng=map_data.lng,
-        icon_url=str(map_data.icon_url),
+        map_name=map_data.name,
+        icon_url=map_data.iconUrl,
         author=user.userId,  
         tags=map_data.tags,
-        rest_ids=map_data.rest_ids 
+        rest_ids=map_data.restaurants 
     )
     try:
         db.add(db_map)
@@ -40,7 +85,7 @@ def create_map(db: Session, map_data: MapCreate, user: UserLoginInfo) -> Map:
         return db_map.map_id
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=400, detail=f"Failed to create map{e}")
+        raise HTTPException(status_code=500, detail=f"Failed to create map{e}")
 
 def update_map(db: Session, map_id: int, updates: dict, user_id: int) -> Map:
     map_obj = db.query(Map).filter(Map.map_id == map_id).first()
@@ -50,10 +95,7 @@ def update_map(db: Session, map_id: int, updates: dict, user_id: int) -> Map:
         raise HTTPException(status_code=403, detail="You are not authorized to update this map")
     for key, value in updates.items():
         if hasattr(map_obj, key):
-            if key == "icon_url":
-                setattr(map_obj, key, str(value))
-            else:
-                setattr(map_obj, key, value)
+            setattr(map_obj, key, value)
         else:
             raise HTTPException(status_code=400, detail=f"Invalid key {key}")
     try:
@@ -130,7 +172,6 @@ def get_restaurants(db: Session, map_id: int, query_params: dict):
         elif order_by == "name":
             stmt = stmt.order_by(Restaurant.rest_name)
 
-    stmt = stmt.offset(offset).limit(limit)
     results = db.execute(stmt).all()
     count = len(results)
     restaurants = [SimplifiedRestaurant(**result._asdict()) for result in results]

@@ -35,26 +35,21 @@ async def get_maps(
     limit: int = Query(10, ge=1, le=100),
     reverse: bool = Query(False),
     q: Optional[str] = Query(None),
+    user: Optional[UserLoginInfo] = Depends(get_optional_user),
     db = Depends(get_db)
 ):
-    map_lists = crud_map.get_maps(db, offset, limit)
-    map_results = [
-        SimplifiedMap(
-            id=permap.map_id,
-            name=permap.map_name,
-            center={"lat": permap.lat, "lng": permap.lng},
-            authorId=permap.author,
-            viewCount=permap.view_cnt,
-            iconUrl=permap.icon_url if permap.icon_url else None
-        ) 
-        for permap in map_lists
-    ]
-    return PaginatedMapResponse(
-        total=len(map_lists),
-        maps=map_results,
-        limit=limit,
-        offset=offset
-    )
+    query_params = {
+        "orderBy": orderBy,
+        "offset": offset,
+        "limit": limit,
+        "q": q
+    }
+    if user:
+        query_params["auth_user_id"] = user.userId
+    map_list = crud_map.get_maps(db, query_params)
+    if reverse:
+        map_list = map_list[::-1]
+    return PaginatedMapResponse(total=len(map_list), maps=map_list[offset:offset+limit], limit=limit, offset=offset)
 
 # --- Create_Map ---
 @router.post("", response_model=PostResponse, status_code=201)
@@ -80,26 +75,8 @@ async def get_single_map(
     user: Optional[UserLoginInfo] = Depends(get_optional_user),
     db = Depends(get_db)
 ):
-    try:
-        permap = crud_map.get_map(db, id)
-        user_info = crud_user.get_user_by_id(db, user.userId)
-        map_result = CompleteMap(
-            id=permap.map_id,
-            name=permap.map_name,
-            center={"lat": permap.lat, "lng": permap.lng},
-            authorId=permap.author,
-            viewCount=permap.view_cnt,
-            author=user_info.user_name, 
-            hasCollected=False,
-        )
-        if permap.icon_url:
-            map_result.iconUrl = permap.icon_url
-        if user:
-            map_result.hasCollected = True
-        return map_result
-    except Exception as e:
-        logger.error(f"Error in get_maps: {e}")
-        raise HTTPException(status_code=500, detail="Internal Server Error - Failed to get maps")
+    map = crud_map.get_map(db, id, user.userId if user else -1)
+    return map
 
 @router.get("/{id}/restaurants", response_model=PaginatedRestaurantResponse)
 async def get_restaurants(
@@ -120,8 +97,6 @@ async def get_restaurants(
     
     query_params = {
         "orderBy": orderBy,
-        "offset": offset,
-        "limit": limit,
         "q": q,
     }
 
@@ -130,6 +105,7 @@ async def get_restaurants(
     total, restaurants_list = crud_map.get_restaurants(db=db, map_id=id, query_params=query_params)
     if reverse:
         restaurants_list = restaurants_list[::-1]
+    restaurants_list = restaurants_list[offset:offset+limit]
     return PaginatedRestaurantResponse(total=total, restaurants=restaurants_list, limit=limit, offset=offset)
 
 # --- Modify_Map ---
@@ -140,10 +116,18 @@ async def modify_map(
     user: UserLoginInfo = Depends(get_current_user),
     db = Depends(get_db),
 ):
-    update_dict = {
-        key: value for key, value in map_data.model_dump().items() 
-        if value is not None and key != "id"
-    }
+    update_dict = {}
+    if map_data.description is not None:
+        update_dict["description"] = map_data.description
+    if map_data.name is not None:
+        update_dict["map_name"] = map_data.name
+    if map_data.iconUrl is not None:
+        update_dict["icon_url"] = map_data.iconUrl
+    if map_data.tags:
+        update_dict["tags"] = map_data.tags
+    if map_data.restaurants:
+        update_dict["rest_ids"] = map_data.restaurants
+
     logger.info(f"update_dict: {update_dict}")
     update_result = crud_map.update_map(db, id, update_dict, user.userId)
 

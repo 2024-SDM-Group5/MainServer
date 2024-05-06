@@ -54,7 +54,7 @@ def get_user_by_id(db: Session, user_id: str) -> User:
     return db.query(User).filter(User.user_id == user_id).first()
 
 def get_users(db: Session, query) -> list[User]:
-    stmt = query_sql(name_match=query["q"], order_by=query["orderBy"]).limit(query["limit"]).offset(query["offset"])
+    stmt = query_sql(auth_user_id=query["auth_user_id"], name_match=query["q"], order_by=query["orderBy"]).limit(query["limit"]).offset(query["offset"])
     result = db.execute(stmt).all()
     return [UserDisplay(**user._asdict()) for user in result]
 

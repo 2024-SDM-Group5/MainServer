@@ -23,6 +23,7 @@ class Map(Base):
     created = Column(DateTime, default=datetime.now)
     rest_ids =  Column(ARRAY(String), index=True)
     view_cnt = Column(Integer, default=0,index=True)
+    description = Column(String, index=True)
     
 class Restaurant(Base):
     __tablename__ = "restaurants"
