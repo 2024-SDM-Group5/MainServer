@@ -37,33 +37,31 @@ async def get_maps(
     q: Optional[str] = Query(None),
     db = Depends(get_db)
 ):
-    try:
-        map_lists = crud_map.get_maps(db, offset, limit)
-        map_results = [SimplifiedMap(
-                id=permap.map_id,
-                name=permap.map_name,
-                iconUrl=permap.icon_url,
-                center={"lat": permap.lat, "lng": permap.lng},
-                authorId=permap.author,
-                viewCount=permap.view_cnt,
-            )for permap in map_lists]
-        return PaginatedMapResponse(
-            total=len(map_lists),
-            maps=map_results,
-            limit=limit,
-            offset=offset
-        )
-    except Exception as e:
-        logger.error(f"Error in get_maps: {e}")
-        logger.error(f"Error in get_maps: {map_lists}")
-        raise HTTPException(status_code=500, detail="Internal Server Error - Failed to get maps")
+    map_lists = crud_map.get_maps(db, offset, limit)
+    map_results = [
+        SimplifiedMap(
+            id=permap.map_id,
+            name=permap.map_name,
+            center={"lat": permap.lat, "lng": permap.lng},
+            authorId=permap.author,
+            viewCount=permap.view_cnt,
+            iconUrl=permap.icon_url if permap.icon_url else None
+        ) 
+        for permap in map_lists
+    ]
+    return PaginatedMapResponse(
+        total=len(map_lists),
+        maps=map_results,
+        limit=limit,
+        offset=offset
+    )
 
 # --- Create_Map ---
 @router.post("", response_model=PostResponse, status_code=201)
 async def create_map(
-        map_data: MapCreate, 
-        user: UserLoginInfo = Depends(get_current_user), 
-        db = Depends(get_db)
+    map_data: MapCreate, 
+    user: UserLoginInfo = Depends(get_current_user), 
+    db = Depends(get_db)
 ):
     try:
         map_res = crud_map.create_map(db, map_data, user)
@@ -86,15 +84,16 @@ async def get_single_map(
         permap = crud_map.get_map(db, id)
         user_info = crud_user.get_user_by_id(db, user.userId)
         map_result = CompleteMap(
-                id=permap.map_id,
-                name=permap.map_name,
-                iconUrl=permap.icon_url,
-                center={"lat": permap.lat, "lng": permap.lng},
-                authorId=permap.author,
-                viewCount=permap.view_cnt,
-                author=user_info.user_name, 
-                hasCollected=False,
-                )
+            id=permap.map_id,
+            name=permap.map_name,
+            center={"lat": permap.lat, "lng": permap.lng},
+            authorId=permap.author,
+            viewCount=permap.view_cnt,
+            author=user_info.user_name, 
+            hasCollected=False,
+        )
+        if permap.icon_url:
+            map_result.iconUrl = permap.icon_url
         if user:
             map_result.hasCollected = True
         return map_result
@@ -113,13 +112,25 @@ async def get_restaurants(
     q: Optional[str] = Query(None),
     sw: Optional[str] = Query(None),
     ne: Optional[str] = Query(None),
+    user: Optional[UserLoginInfo] = Depends(get_optional_user),
+    db = Depends(get_db)
 ):
     if id == 0:
         raise HTTPException(status_code=307, detail="Temporary Redirect", headers={"Location": "/api/v1/restaurants"})
-    restaurants = SimplifiedRestaurant_Ex
-    total = len(restaurants)
-    restaurants = restaurants[offset:offset+limit]
-    return PaginatedRestaurantResponse(total=total, restaurants=restaurants, limit=limit, offset=offset)
+    
+    query_params = {
+        "orderBy": orderBy,
+        "offset": offset,
+        "limit": limit,
+        "q": q,
+    }
+
+    if user:
+        query_params["auth_user_id"] = user.userId
+    total, restaurants_list = crud_map.get_restaurants(db=db, map_id=id, query_params=query_params)
+    if reverse:
+        restaurants_list = restaurants_list[::-1]
+    return PaginatedRestaurantResponse(total=total, restaurants=restaurants_list, limit=limit, offset=offset)
 
 # --- Modify_Map ---
 @router.put("/{id}", response_model=PutResponse)
@@ -129,21 +140,20 @@ async def modify_map(
     user: UserLoginInfo = Depends(get_current_user),
     db = Depends(get_db),
 ):
-    try:
-        update_dict = {key: value for key, value in map_data.dict().items() if value is not None and key != "id"}
-        logger.info(f"update_dict: {update_dict}")
-        update_result = crud_map.update_map(db, id, update_dict)
+    update_dict = {
+        key: value for key, value in map_data.model_dump().items() 
+        if value is not None and key != "id"
+    }
+    logger.info(f"update_dict: {update_dict}")
+    update_result = crud_map.update_map(db, id, update_dict, user.userId)
 
-        if update_result:
-            return {
-                "success": True,
-                "message": f"Map data {id} updated successfully",
-            }
-        else:
-            raise HTTPException(status_code=404, detail=f"Map {id} not found")
-    except Exception as e:
-        logger.error(f"Error in modify_map: {e}")
-        raise HTTPException(status_code=500, detail=f"Internal Server Error - Failed to modify map: {e}")
+    if update_result:
+        return {
+            "success": True,
+            "message": f"Map data {id} updated successfully",
+        }
+    else:
+        raise HTTPException(status_code=500, detail=f"Server Error")
 
 # --- Delete_Map ---
 @router.delete("/{id}", response_model=PostResponse)
