@@ -39,10 +39,9 @@ async def get_maps(
         "orderBy": orderBy,
         "offset": offset,
         "limit": limit,
-        "q": q
+        "q": q,
+        "auth_user_id": user.userId if user else -1
     }
-    if user:
-        query_params["auth_user_id"] = user.userId
     map_list = crud_map.get_maps(db, query_params)
     if reverse:
         map_list = map_list[::-1]
