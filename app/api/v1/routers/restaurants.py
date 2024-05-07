@@ -24,9 +24,18 @@ async def get_restaurants(
     lng: float = Query(121.540535),
     distance: int = Query(1000),
     user: Optional[UserLoginInfo] = Depends(get_optional_user),
-    db = Depends(get_db)
+    db = Depends(get_db),
+    sw: Optional[str] = Query(None),
+    ne: Optional[str] = Query(None)
 ):
-    nearby_restaurants = search_nearby_restaurants("", lat, lng)
+    if sw and ne:
+        sw = sw.split(",") if sw else None
+        ne = ne.split(",") if ne else None
+        lat = (float(sw[0]) + float(ne[0])) / 2
+        lng = (float(sw[1]) + float(ne[1])) / 2
+        distance = max(float(sw[0]) - lat, float(sw[1]) - lng)
+    nearby_restaurants = search_nearby_restaurants(q, lat, lng)
+    print(nearby_restaurants)
     db_restaurants = [CreateRestaurant(**restaurant) for restaurant in nearby_restaurants]
     bulk_insert(db, db_restaurants)
 

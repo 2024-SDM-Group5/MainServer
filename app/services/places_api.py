@@ -57,12 +57,12 @@ def search_nearby_restaurants(keyword, lat, lng, radius=1000):
 
     filtered_results = [
         {
-            'name': result.get('name'),
-            'rating': result.get('rating'),
-            'user_ratings_total': result.get('user_ratings_total'),
-            'place_id': result.get('place_id'),
-            'types': result.get('types'),
-            'price_level': result.get('price_level'),
+            'name': result.get('name', ''),
+            'rating': result.get('rating', 0),
+            'user_ratings_total': result.get('user_ratings_total', 0),
+            'place_id': result.get('place_id', ''),
+            'types': result.get('types', ''),
+            'price_level': result.get('price_level', 0),
             'location': result.get('geometry', {}).get('location', {}),
             'photo_url': result.get('photos', [{}])[0].get('photo_reference', '')
         } 
