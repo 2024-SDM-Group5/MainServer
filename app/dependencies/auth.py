@@ -26,10 +26,10 @@ async def google_oauth2(token: str = Depends(oauth2_scheme)):
         
         if response.status_code != 200:
             # For testing
-            return {
-                "name": "Testing",
-                "email": "test@gmail.com"
-            }
+            # return {
+            #     "name": "Testing",
+            #     "email": "test@gmail.com"
+            # }
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authentication credentials",
