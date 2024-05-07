@@ -23,8 +23,8 @@ def query_sql(user_id = None, auth_user_id: int = -1, name_match: str = None, or
             )
         ).label('isFollowing')
     ).outerjoin(Map, Map.author == User.user_id) \
-    .outerjoin(Followings, Followings.be_followed == User.user_id) \
-    .outerjoin(Followers, Followers.follow == User.user_id)  \
+    .outerjoin(Followings, Followings.follow == User.user_id) \
+    .outerjoin(Followers, Followers.be_followed == User.user_id)  \
     .outerjoin(Diary, Diary.user_id == User.user_id)
 
     if user_id:
