@@ -29,12 +29,12 @@ async def get_restaurants(
     ne: Optional[str] = Query(None)
 ):
     if sw and ne:
-        sw = sw.split(",") if sw else None
-        ne = ne.split(",") if ne else None
-        sw_lat = float(sw[0]) if sw else None
-        sw_lng = float(sw[1]) if sw else None
-        ne_lat = float(ne[0]) if ne else None
-        ne_lng = float(ne[1]) if ne else None
+        sw = sw.split(",")
+        ne = ne.split(",")
+        sw_lat = float(sw[0])
+        sw_lng = float(sw[1])
+        ne_lat = float(ne[0])
+        ne_lng = float(ne[1])
         lat = (sw_lat + ne_lat) / 2
         lng = (sw_lng + ne_lng) / 2
         
@@ -47,11 +47,13 @@ async def get_restaurants(
         "offset": offset,
         "limit": limit,
         "q": q,
-        "sw_lat": sw_lat,
-        "sw_lng": sw_lng,
-        "ne_lat": ne_lat,
-        "ne_lng": ne_lng
     }
+
+    if sw and ne:
+        query_params["sw_lat"] = sw_lat
+        query_params["sw_lng"] = sw_lng
+        query_params["ne_lat"] = ne_lat
+        query_params["ne_lng"] = ne_lng
 
     if user:
         query_params["auth_user_id"] = user.userId
