@@ -5,7 +5,7 @@ from app.schemas.restaurants import CreateRestaurant, SimplifiedRestaurant, Full
 from sqlalchemy import func, select, and_, literal, distinct, exists
 from sqlalchemy.orm import Session, aliased
 
-def base_query(auth_user_id: int):
+def base_query(auth_user_id: int, order_by: str = None):
     Collects = aliased(UserRestCollect)
     Likes = aliased(UserRestLike)
     Dislikes = aliased(UserRestDislike)
@@ -33,6 +33,15 @@ def base_query(auth_user_id: int):
      .outerjoin(Dislikes, Dislikes.rest_id == Restaurant.google_place_id) \
      .group_by(Restaurant.google_place_id)
     
+
+    if order_by:
+        if order_by == "rating":
+            stmt = stmt.order_by(Restaurant.rating.desc())
+        elif order_by == "name":
+            stmt = stmt.order_by(Restaurant.rest_name)
+        elif order_by == "collectCount":
+            stmt = stmt.order_by(func.count(distinct(Collects.user_id)).desc())
+
     return stmt
 
 def query_restaurants(session: Session, query_params: dict):
@@ -40,37 +49,34 @@ def query_restaurants(session: Session, query_params: dict):
     offset = query_params.get("offset", 0)
     limit = query_params.get("limit", 10)
     q = query_params.get("q")
-    lat = query_params.get("lat")
-    lng = query_params.get("lng")
-    distance = query_params.get("distance")
     auth_user_id = query_params.get("auth_user_id", -1)
+    sw_lat = query_params.get("sw_lat")
+    sw_lng = query_params.get("sw_lng")
+    ne_lat = query_params.get("ne_lat")
+    ne_lng = query_params.get("ne_lng")
 
-    stmt = base_query(auth_user_id)
+    stmt = base_query(auth_user_id, order_by)
 
-    radius = distance / 100000
-    stmt = stmt.where(
-        and_(
-            Restaurant.lat.between(lat - radius, lat + radius),
-            Restaurant.lng.between(lng - radius, lng + radius)
+    if sw_lat and sw_lng and ne_lat and ne_lng:
+        stmt = stmt.where(
+            and_(
+                Restaurant.lat.between(sw_lat, ne_lat),
+                Restaurant.lng.between(sw_lng, ne_lng)
+            )
         )
-    )
 
     if q:
         stmt = stmt.where(Restaurant.rest_name.like(f"%{q}%"))
     # Ordering
-    if order_by:
-        if order_by == "rating":
-            stmt = stmt.order_by(Restaurant.rating.desc())
-        elif order_by == "name":
-            stmt = stmt.order_by(Restaurant.rest_name)
 
     # Pagination
     stmt = stmt.offset(offset).limit(limit)
-    count_query = select(func.count(Restaurant.google_place_id)) \
-        .where(
+    count_query = select(func.count(Restaurant.google_place_id))
+    if sw_lat and sw_lng and ne_lat and ne_lng:
+        count_query = count_query.where(
             and_(
-                Restaurant.lat.between(lat - radius, lat + radius),
-                Restaurant.lng.between(lng - radius, lng + radius)
+                Restaurant.lat.between(sw_lat, ne_lat),
+                Restaurant.lng.between(sw_lng, ne_lng)
             )    
         )
     count = session.execute(count_query).scalar()
@@ -87,7 +93,8 @@ def get_restaurant(db: Session, place_id: str, user_id: int) -> Restaurant:
     return restaurant
 
 def bulk_insert(db: Session, restaurants: list[CreateRestaurant]) -> list[Restaurant]:
-    
+    if not restaurants:
+        return []
     db_restaurants = [{
         "google_place_id": restaurant.place_id,
         "rest_name": restaurant.name,

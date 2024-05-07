@@ -40,13 +40,13 @@ async def get_place_details(place_id):
         photo_url=photoUrl
     )
 
-def search_nearby_restaurants(keyword, lat, lng, radius=1000):
+def search_nearby_restaurants(keyword, lat, lng, radius=2000):
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
     params = {
         'keyword': keyword,
         'language': 'zh-TW',
         'location': f'{lat},{lng}',
-        'radius': radius,
+        'radius': 10000 if keyword else radius,
         'type': 'restaurant',
         'key': api_key,
         'opennow': True,
@@ -54,7 +54,6 @@ def search_nearby_restaurants(keyword, lat, lng, radius=1000):
     
     response = requests.get(url, params=params)
     results = response.json().get('results', [])
-
     filtered_results = [
         {
             'name': result.get('name', ''),

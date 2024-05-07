@@ -119,7 +119,7 @@ def delete_map(db: Session, map_id: int):
 def get_maps_by_user(db: Session, user_id: int, skip: int = 0, limit: int = 100) -> list[Map]:
     return db.query(Map).filter(Map.author == user_id).offset(skip).limit(limit).all()
 
-def base_query(auth_user_id: int, map_id: int):
+def base_query(auth_user_id: int, map_id: int, order_by: str = None):
     Collects = aliased(UserRestCollect)
     Likes = aliased(UserRestLike)
     Dislikes = aliased(UserRestDislike)
@@ -153,24 +153,25 @@ def base_query(auth_user_id: int, map_id: int):
      .outerjoin(Dislikes, Dislikes.rest_id == Restaurant.google_place_id) \
      .group_by(Restaurant.google_place_id)
     
-    return stmt
-
-def get_restaurants(db: Session, map_id: int, query_params: dict):
-    order_by = query_params.get("orderBy")
-    offset = query_params.get("offset", 0)
-    limit = query_params.get("limit", 10)
-    q = query_params.get("q")
-    auth_user_id = query_params.get("auth_user_id", -1)
-    stmt = base_query(auth_user_id, map_id)
-
-    if q:
-        stmt = stmt.where(Restaurant.rest_name.like(f"%{q}%"))
-    # Ordering
     if order_by:
         if order_by == "rating":
             stmt = stmt.order_by(Restaurant.rating.desc())
         elif order_by == "name":
             stmt = stmt.order_by(Restaurant.rest_name)
+        elif order_by == "collectCount":
+            stmt = stmt.order_by(func.count(distinct(Collects.user_id)).desc())
+
+    
+    return stmt
+
+def get_restaurants(db: Session, map_id: int, query_params: dict):
+    order_by = query_params.get("orderBy")
+    q = query_params.get("q")
+    auth_user_id = query_params.get("auth_user_id", -1)
+    stmt = base_query(auth_user_id, map_id, order_by)
+
+    if q:
+        stmt = stmt.where(Restaurant.rest_name.like(f"%{q}%"))
 
     results = db.execute(stmt).all()
     count = len(results)

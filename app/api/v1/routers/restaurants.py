@@ -31,11 +31,14 @@ async def get_restaurants(
     if sw and ne:
         sw = sw.split(",") if sw else None
         ne = ne.split(",") if ne else None
-        lat = (float(sw[0]) + float(ne[0])) / 2
-        lng = (float(sw[1]) + float(ne[1])) / 2
-        distance = max(float(sw[0]) - lat, float(sw[1]) - lng)
+        sw_lat = float(sw[0]) if sw else None
+        sw_lng = float(sw[1]) if sw else None
+        ne_lat = float(ne[0]) if ne else None
+        ne_lng = float(ne[1]) if ne else None
+        lat = (sw_lat + ne_lat) / 2
+        lng = (sw_lng + ne_lng) / 2
+        
     nearby_restaurants = search_nearby_restaurants(q, lat, lng)
-    print(nearby_restaurants)
     db_restaurants = [CreateRestaurant(**restaurant) for restaurant in nearby_restaurants]
     bulk_insert(db, db_restaurants)
 
@@ -44,9 +47,10 @@ async def get_restaurants(
         "offset": offset,
         "limit": limit,
         "q": q,
-        "lat": lat,
-        "lng": lng,
-        "distance": distance,
+        "sw_lat": sw_lat,
+        "sw_lng": sw_lng,
+        "ne_lat": ne_lat,
+        "ne_lng": ne_lng
     }
 
     if user:
