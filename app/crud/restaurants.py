@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import insert
-from app.models.dbModel import Restaurant, UserRestCollect, UserRestLike, UserRestDislike, Map
+from app.models.dbModel import Restaurant, UserRestCollect, UserRestLike, UserRestDislike, Map, Diary
 from app.schemas.restaurants import CreateRestaurant, SimplifiedRestaurant, FullCreateRestaurant, Restaurant as ClientRestaurant
+from app.schemas.diaries import SimplifiedDiary
 from sqlalchemy import func, select, and_, literal, distinct, exists
 from sqlalchemy.orm import Session, aliased
 
@@ -90,6 +91,15 @@ def get_restaurant(db: Session, place_id: str, user_id: int) -> Restaurant:
     stmt = stmt.where(Restaurant.google_place_id == place_id)
     result = db.execute(stmt).first()
     restaurant = ClientRestaurant(**result._asdict(), diaries=[])
+    
+    diary_stmt = select(
+        Diary.diary_id.label('id'),
+        Restaurant.rest_name.label('restaurantName'),
+        Diary.photos[1].label('imageUrl'),
+    ).outerjoin(Restaurant, Restaurant.google_place_id == Diary.rest_id) \
+    .where(Diary.rest_id == place_id)
+    diaries = db.execute(diary_stmt).all()
+    restaurant.diaries = [SimplifiedDiary(**diary._asdict()) for diary in diaries]
     return restaurant
 
 def bulk_insert(db: Session, restaurants: list[CreateRestaurant]) -> list[Restaurant]:
