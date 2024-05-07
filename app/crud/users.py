@@ -65,7 +65,7 @@ def create_user(db: Session, user: dict) -> User:
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    db_map = Map(map_name="我的地圖", author=db_user.user_id)
+    db_map = Map(map_name="我的地圖", author=db_user.user_id, description="這裡收集了我喜愛的美食")
     db.add(db_map)
     db.commit()
     db.refresh(db_map)
