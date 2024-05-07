@@ -104,9 +104,7 @@ async def unfollow_user(
 ):  
     if id == user.userId:
         raise HTTPException(status_code=403, detail="You cannot unfollow yourself")
-    follow = crud_follow.delete_follow(db, user.userId, id)
-    if not follow:
-        return HTTPException(status_code=500, detail="Server Error")
+    crud_follow.delete_follow(db, user.userId, id)
     return {
         "success": True,
         "message": f"User with ID {user.userId} has unfollowed user with ID {id}",
