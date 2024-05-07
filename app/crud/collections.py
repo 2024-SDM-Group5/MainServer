@@ -82,10 +82,13 @@ def get_user_diary(db:Session, user_id:int, offset:int, limit:int, q: str) -> li
         for diary_instance in diary_collections
     ]
     if q != "":
+        remove = []
         for diary in simplified_diaries:
             rest_name = diary.restaurantName
             if q not in rest_name:
-                simplified_diaries.remove(diary)
+                remove.append(diary)
+        for diary in remove:
+            simplified_diaries.remove(diary)
     
     return simplified_diaries
 
