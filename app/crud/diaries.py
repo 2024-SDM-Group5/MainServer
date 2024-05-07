@@ -88,7 +88,7 @@ def full_query(diary_id: int, auth_user_id: int):
             select(1).where(
                 UserDiaryLike.user_id == auth_user_id, UserDiaryLike.diary_id == Diary.diary_id
             )
-        ).label('hasLiked')
+        ).label('hasFavorited')
     ).outerjoin(Collects, Collects.diary_id == Diary.diary_id) \
      .outerjoin(Favorites, Favorites.diary_id == Diary.diary_id) \
      .outerjoin(Restaurant, Restaurant.google_place_id == Diary.rest_id) \

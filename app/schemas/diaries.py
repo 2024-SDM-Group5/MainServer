@@ -23,8 +23,8 @@ class DiaryDisplay(BaseModel):
     favCount: int = Field(..., ge=0) 
     collectCount: int = Field(..., ge=0)
     createdAt: datetime
-    hasFavorited: bool = Field(False, description="Flag indicating if the user is currently being favorited by the authenticated user")
-    hasCollected: bool = Field(False, description="Flag indicating if the user has collected this diary")
+    hasFavorited: bool = Field(..., description="Flag indicating if the user is currently being favorited by the authenticated user")
+    hasCollected: bool = Field(..., description="Flag indicating if the user has collected this diary")
 
 DiaryDisplay_Ex = {
     "id": 1,
