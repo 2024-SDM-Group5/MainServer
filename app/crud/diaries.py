@@ -51,6 +51,8 @@ def get_diaries(db: Session, user_id: int, query: dict) -> List[SimplifiedDiary]
     return len(diaries), diaries[offset:offset+limit]
 
 def create_diary(db: Session, diary: DiaryCreate, user_id: int) -> Diary:
+    if not diary.photos:
+        raise HTTPException(status_code=400, detail="Diary must have at least one photo")
     db_diary = Diary(
         user_id=user_id,
         rest_id=diary.restaurantId,
