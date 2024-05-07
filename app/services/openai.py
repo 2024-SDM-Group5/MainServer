@@ -14,6 +14,9 @@ def gpt_query(req: str, restaurants: list) -> (str, bool):
     """
     Query the GPT-3.5 turbo model with the given request.
     """
+    if not restaurants:
+        response_content = "對不起，附近沒有符合條件的餐廳，試試看其他關鍵字吧！"
+        return response_content, True
     prompt = f"用戶需求：{req}\n附近餐廳資訊：{restaurants}，請推薦一家餐廳給用戶。"
     try:
         completion = client.chat.completions.create(
