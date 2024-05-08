@@ -114,11 +114,12 @@ def get_replies_query(diary_id: int):
 def get_diary(db: Session, diary_id: int, auth_user_id: int) -> DiaryDisplay:
     stmt = full_query(diary_id, auth_user_id)
     result = db.execute(stmt).first()
-
+    if not result:
+        raise HTTPException(status_code=404, detail=f"Diary with id {diary_id} not found")
     replies_stmt = get_replies_query(diary_id)
     replies = db.execute(replies_stmt).all()
-    replies = [Reply(**reply._asdict()) for reply in replies]
-    diary = DiaryDisplay(**result._asdict())
+    replies = [Reply(**{**reply._asdict(), 'avatarUrl': reply.avatarUrl or ''}) for reply in replies]
+    diary = DiaryDisplay(**{**result._asdict(), 'avatarUrl': result.avatarUrl or ''})
     diary.replies = replies
     return diary
 
