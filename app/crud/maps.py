@@ -33,7 +33,7 @@ def query_sql(map_id = None, auth_user_id: int = -1, name_match: str = None, ord
     .outerjoin(Collect, Collect.map_id == Map.map_id) \
     .outerjoin(Restaurant, Restaurant.google_place_id == any_(Map.rest_ids))
 
-    if map_id:
+    if map_id is not None:
         stmt = stmt.where(Map.map_id == map_id)
 
     if name_match:
@@ -51,12 +51,14 @@ def query_sql(map_id = None, auth_user_id: int = -1, name_match: str = None, ord
 def get_map(db: Session, map_id: int, auth_user_id: int) -> Map:
     stmt = query_sql(map_id=map_id, auth_user_id=auth_user_id)
     result = db.execute(stmt).first()
-    restaurant = CompleteMap(
+    if not result:
+        return None
+    map = CompleteMap(
         **{k: v for k, v in result._asdict().items() 
             if k != 'iconUrl' or v is not None
         }
     )
-    return restaurant
+    return map
 
 def get_maps(db: Session, query: dict) -> list[Map]:
     stmt = query_sql(auth_user_id=query["auth_user_id"], name_match=query["q"], order_by=query["orderBy"]).limit(query["limit"]).offset(query["offset"])

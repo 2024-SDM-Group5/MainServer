@@ -72,6 +72,8 @@ async def get_single_map(
     db = Depends(get_db)
 ):
     map = crud_map.get_map(db, id, user.userId if user else -1)
+    if not map:
+        raise HTTPException(status_code=404, detail="Map not found")
     return map
 
 @router.get("/{id}/restaurants", response_model=PaginatedRestaurantResponse)
