@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: mainserver-service
 spec:
-  replicas: 1
+  replicas: 6
   revisionHistoryLimit: 1  # Keep only one old Replica Set as backup
   selector:
     matchLabels:
