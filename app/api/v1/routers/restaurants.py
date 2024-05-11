@@ -13,7 +13,7 @@ import app.crud.restaurants as crud_rest
 router = APIRouter(prefix="/api/v1/restaurants", tags=["restaurants"])
 
 @router.get("", response_model=PaginatedRestaurantResponse)
-async def get_restaurants(
+def get_restaurants(
     orderBy: str = Query("collectCount", enum=["collectCount", "createTime"]),
     tags: Optional[List[str]] = Query(None),
     offset: int = Query(0, ge=0),
