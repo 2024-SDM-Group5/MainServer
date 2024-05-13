@@ -202,7 +202,10 @@ def uncollect_restaurant(db: Session, user_id: int, place_id: str):
         db.commit()
     map = db.query(Map).filter(Map.author == user_id).first()
     if map:
-        restaurants = map.rest_ids.copy()
+        if isinstance(map.rest_ids, list):
+            restaurants = map.rest_ids.copy()
+        else:
+            restaurants = []
         if place_id in restaurants:
             restaurants.remove(place_id)
             setattr(map, "rest_ids", restaurants)
