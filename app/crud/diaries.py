@@ -69,27 +69,6 @@ def full_query(diary_id: int, auth_user_id: int):
     Favorites = aliased(UserDiaryLike)
     Collects = aliased(UserDiaryCollect)
 
-    has_collected = select(
-        exists(
-            select(1)
-            .where(
-                UserDiaryCollect.user_id == auth_user_id, 
-                UserDiaryCollect.diary_id == Diary.diary_id
-            )
-        ).label('hasCollected')
-    ).correlate(Diary).as_scalar()
-
-    has_favorited = select(
-        exists(
-            select(1)
-            .where(
-                UserDiaryLike.user_id == auth_user_id, 
-                UserDiaryLike.diary_id == Diary.diary_id
-            )
-        ).label('hasCollected')
-    ).correlate(Diary).as_scalar()
-
-
     stmt = select(
         Diary.diary_id.label('id'),
         User.user_name.label('username'),
@@ -103,8 +82,8 @@ def full_query(diary_id: int, auth_user_id: int):
         Diary.created.label('createdAt'),
         func.count(Favorites.user_id).label('favCount'),
         func.count(Collects.user_id).label('collectCount'),
-        has_collected,
-        has_favorited
+        exists(select(1).where(UserDiaryCollect.user_id == auth_user_id, UserDiaryCollect.diary_id == Diary.diary_id)).label('hasCollected'),
+        exists(select(1).where(UserDiaryLike.user_id == auth_user_id, UserDiaryLike.diary_id == Diary.diary_id)).label('hasFavorited')    
     ).outerjoin(Collects, Collects.diary_id == Diary.diary_id) \
      .outerjoin(Favorites, Favorites.diary_id == Diary.diary_id) \
      .outerjoin(Restaurant, Restaurant.google_place_id == Diary.rest_id) \
@@ -133,6 +112,7 @@ def get_diary(db: Session, diary_id: int, auth_user_id: int) -> DiaryDisplay:
     replies_stmt = get_replies_query(diary_id)
     replies = db.execute(replies_stmt).all()
     replies = [Reply(**{**reply._asdict(), 'avatarUrl': reply.avatarUrl or ''}) for reply in replies]
+    print(result._asdict())
     diary = DiaryDisplay(**{**result._asdict(), 'avatarUrl': result.avatarUrl or ''})
     diary.replies = replies
     return diary

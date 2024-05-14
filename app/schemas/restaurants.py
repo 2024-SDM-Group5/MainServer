@@ -10,9 +10,9 @@ class SimplifiedRestaurant(BaseModel):
     collectCount: int = Field(..., ge=0)
     likeCount: int = Field(..., ge=0)
     dislikeCount: int = Field(..., ge=0)
-    hasCollected: bool = Field(False, description="Flag indicating if the restaurant is currently being collected by the authenticated user")
-    hasLiked: bool = Field(False, description="Flag indicating if the restaurant is currently being liked by the authenticated user")
-    hasDisliked: bool = Field(False, description="Flag indicating if the restaurant is currently being disliked by the authenticated user")
+    hasCollected: bool = Field(..., description="Flag indicating if the restaurant is currently being collected by the authenticated user")
+    hasLiked: bool = Field(..., description="Flag indicating if the restaurant is currently being liked by the authenticated user")
+    hasDisliked: bool = Field(..., description="Flag indicating if the restaurant is currently being disliked by the authenticated user")
     photoUrl: str = Field(None)
 
 SimplifiedRestaurant_Ex = [

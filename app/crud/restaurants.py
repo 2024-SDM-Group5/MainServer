@@ -10,37 +10,6 @@ def base_query(auth_user_id: int, order_by: str = None):
     Collects = aliased(UserRestCollect)
     Likes = aliased(UserRestLike)
     Dislikes = aliased(UserRestDislike)
-
-    has_collected = select(
-        exists(
-            select(1)
-            .where(and_(
-                Collects.user_id == auth_user_id,
-                Collects.rest_id == Restaurant.google_place_id
-            ))
-        ).label('hasCollected')
-    ).correlate(Restaurant).as_scalar()
-
-    has_liked = select(
-        exists(
-            select(1)
-            .where(and_(
-                Likes.user_id == auth_user_id,
-                Likes.rest_id == Restaurant.google_place_id
-            ))
-        ).label('hasLiked')
-    ).correlate(Restaurant).as_scalar()
-
-    has_disliked = select(
-        exists(
-            select(1)
-            .where(and_(
-                Dislikes.user_id == auth_user_id,
-                Dislikes.rest_id == Restaurant.google_place_id
-            ))
-        ).label('hasDisliked')
-    ).correlate(Restaurant).as_scalar()
-
     stmt = select(
         Restaurant.rest_name.label('name'),
         func.json_build_object('lat', Restaurant.lat, 'lng', Restaurant.lng).label('location'),
@@ -53,15 +22,15 @@ def base_query(auth_user_id: int, order_by: str = None):
         func.count(Collects.user_id).label('collectCount'),
         func.count(Likes.user_id).label('likeCount'),
         func.count(Dislikes.user_id).label('dislikeCount'),
-        has_collected,
-        has_liked,
-        has_disliked
+        exists(select(1).where(UserRestCollect.user_id == auth_user_id, UserRestCollect.rest_id == Restaurant.google_place_id)).label('hasCollected'),
+        exists(select(1).where(UserRestLike.user_id == auth_user_id, UserRestLike.rest_id == Restaurant.google_place_id)).label('hasLiked'),
+        exists(select(1).where(UserRestDislike.user_id == auth_user_id, UserRestDislike.rest_id == Restaurant.google_place_id)).label('hasDisliked')
     ).outerjoin(Collects, Collects.rest_id == Restaurant.google_place_id) \
      .outerjoin(Likes, Likes.rest_id == Restaurant.google_place_id) \
      .outerjoin(Dislikes, Dislikes.rest_id == Restaurant.google_place_id) \
      .group_by(Restaurant.google_place_id)
     
-
+    print(stmt)
     if order_by:
         if order_by == "rating":
             stmt = stmt.order_by(Restaurant.rating.desc())
