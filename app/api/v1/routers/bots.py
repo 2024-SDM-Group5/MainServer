@@ -15,9 +15,9 @@ async def question(
     user = Depends(get_current_user)
 ):
     position = user_data.position
-    keyword = user_data.req
+    request = user_data.req
 
-    keyword, error = request_rewriting(keyword)
+    keyword, error = request_rewriting(request)
     if error:
         raise HTTPException(status_code=500, detail="Internal Server Error")
     restaurants = search_nearby_restaurants(keyword, position.lat, position.lng)
@@ -53,7 +53,7 @@ async def question(
     retry = 0
     while recommend_id is None and retry < 5:
         retry += 1
-        response, error = gpt_query(user_data.req, filtered_restaurants)
+        response, error = gpt_query(request, filtered_restaurants)
         if response != "" and error:
             return BotResponse(res=response, placeId="")
         for restaurant in restaurants:
