@@ -68,6 +68,28 @@ def create_diary(db: Session, diary: DiaryCreate, user_id: int) -> Diary:
 def full_query(diary_id: int, auth_user_id: int):
     Favorites = aliased(UserDiaryLike)
     Collects = aliased(UserDiaryCollect)
+
+    has_collected = select(
+        exists(
+            select(1)
+            .where(
+                UserDiaryCollect.user_id == auth_user_id, 
+                UserDiaryCollect.diary_id == Diary.diary_id
+            )
+        ).label('hasCollected')
+    ).correlate(Diary).as_scalar()
+
+    has_favorited = select(
+        exists(
+            select(1)
+            .where(
+                UserDiaryLike.user_id == auth_user_id, 
+                UserDiaryLike.diary_id == Diary.diary_id
+            )
+        ).label('hasCollected')
+    ).correlate(Diary).as_scalar()
+
+
     stmt = select(
         Diary.diary_id.label('id'),
         User.user_name.label('username'),
@@ -79,18 +101,10 @@ def full_query(diary_id: int, auth_user_id: int):
         Diary.items,
         Diary.content,
         Diary.created.label('createdAt'),
-        func.count(distinct(Favorites.user_id)).label('favCount'),
-        func.count(distinct(Collects.user_id)).label('collectCount'),
-        exists(
-            select(1).where(
-                UserDiaryCollect.user_id == auth_user_id, UserDiaryCollect.diary_id == Diary.diary_id
-            )
-        ).label('hasCollected'),
-        exists(
-            select(1).where(
-                UserDiaryLike.user_id == auth_user_id, UserDiaryLike.diary_id == Diary.diary_id
-            )
-        ).label('hasFavorited')
+        func.count(Favorites.user_id).label('favCount'),
+        func.count(Collects.user_id).label('collectCount'),
+        has_collected,
+        has_favorited
     ).outerjoin(Collects, Collects.diary_id == Diary.diary_id) \
      .outerjoin(Favorites, Favorites.diary_id == Diary.diary_id) \
      .outerjoin(Restaurant, Restaurant.google_place_id == Diary.rest_id) \
@@ -178,3 +192,13 @@ def unfavorite_diary(db: Session, user_id: int, diary_id: int):
     if like:
         db.delete(like)
         db.commit()
+
+def recommend_diary(db: Session, user_id: int):
+    stmt = select(
+        Diary.rest_id.label('place_id'),
+        Diary.items,
+        Diary.content,
+    ).where(Diary.user_id == user_id)
+
+    results = db.execute(stmt).all()
+    return results
