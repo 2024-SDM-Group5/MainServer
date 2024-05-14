@@ -67,6 +67,16 @@ def get_restaurants(
         restaurants_list = restaurants_list[::-1]
     return PaginatedRestaurantResponse(total=total, restaurants=restaurants_list, limit=limit, offset=offset)
 
+@router.get("/test")
+def get_restaurants(
+    user: UserLoginInfo = Depends(get_current_user),
+    db = Depends(get_db),
+    redis = Depends(get_redis_client)
+):
+    return {
+        "msg": "hi"
+    }
+
 @router.get("/{place_id}", response_model=Restaurant)
 async def get_single_restaurant(
     place_id: str = Path(...), 
@@ -174,5 +184,4 @@ async def undislike_restaurant(
         "success": True, 
         "message": f"User {user.userId} undisliked restaurant number {place_id}"
     }
-
 

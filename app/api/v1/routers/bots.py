@@ -46,22 +46,19 @@ async def question(
 
     if not filtered_restaurants:
         response = "對不起，附近沒有符合條件的餐廳，試試看其他關鍵字吧！"
-        BotResponse(res=response, placeId="")
+        return BotResponse(res=response, placeId="")
 
+    retry_limit = 3
 
-    recommend_id = None
-    retry = 0
-    while recommend_id is None and retry < 5:
-        retry += 1
+    for _ in range(retry_limit):
         response, error = gpt_query(request, filtered_restaurants)
         if response != "" and error:
             return BotResponse(res=response, placeId="")
         for restaurant in restaurants:
             if restaurant['name'] in response:
-                recommend_id = restaurant['place_id']
-                break
+                return BotResponse(res=response, placeId=restaurant['place_id'])
+        print(response)
         print("Retrying...")
 
-    if error:
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-    return BotResponse(res=response, placeId=recommend_id)
+    response = "對不起，我找不到符合條件的餐廳，試試看其他關鍵字吧！"
+    return BotResponse(res=response, placeId="")
