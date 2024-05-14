@@ -8,3 +8,4 @@ class BotRequest(BaseModel):
     position: Position = Field(..., description="Position of the user")
 class BotResponse(BaseModel):
     res: str = Field(..., description="Response from bot to user")
+    placeId: str = Field(..., description="Place ID of the recommended restaurant")

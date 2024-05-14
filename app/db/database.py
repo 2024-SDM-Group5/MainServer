@@ -6,7 +6,7 @@ from app.core.config import Config
 if not Config.DATABASE_URL:
     raise ValueError("No DATABASE_URL provided. Set DATABASE_URL environment variable.")
 
-engine = create_engine(Config.DATABASE_URL)
+engine = create_engine(Config.DATABASE_URL, pool_pre_ping=True)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

@@ -16,6 +16,7 @@ python-dotenv = "*"
 pytest = "*"
 httpx = "*"
 trio = "*"
+redis = "*"
 
 [dev-packages]
 

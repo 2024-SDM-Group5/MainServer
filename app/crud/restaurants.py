@@ -10,6 +10,37 @@ def base_query(auth_user_id: int, order_by: str = None):
     Collects = aliased(UserRestCollect)
     Likes = aliased(UserRestLike)
     Dislikes = aliased(UserRestDislike)
+
+    has_collected = select(
+        exists(
+            select(1)
+            .where(and_(
+                Collects.user_id == auth_user_id,
+                Collects.rest_id == Restaurant.google_place_id
+            ))
+        ).label('hasCollected')
+    ).correlate(Restaurant).as_scalar()
+
+    has_liked = select(
+        exists(
+            select(1)
+            .where(and_(
+                Likes.user_id == auth_user_id,
+                Likes.rest_id == Restaurant.google_place_id
+            ))
+        ).label('hasLiked')
+    ).correlate(Restaurant).as_scalar()
+
+    has_disliked = select(
+        exists(
+            select(1)
+            .where(and_(
+                Dislikes.user_id == auth_user_id,
+                Dislikes.rest_id == Restaurant.google_place_id
+            ))
+        ).label('hasDisliked')
+    ).correlate(Restaurant).as_scalar()
+
     stmt = select(
         Restaurant.rest_name.label('name'),
         func.json_build_object('lat', Restaurant.lat, 'lng', Restaurant.lng).label('location'),
@@ -19,16 +50,12 @@ def base_query(auth_user_id: int, order_by: str = None):
         Restaurant.google_place_id.label('placeId'),
         Restaurant.photo_url.label('photoUrl'),
         literal(0).label('viewCount'), 
-        func.count(distinct(Collects.user_id)).label('collectCount'),
-        func.count(distinct(Likes.user_id)).label('likeCount'),
-        func.count(distinct(Dislikes.user_id)).label('dislikeCount'),
-        exists(
-            select(1).where(
-                UserRestCollect.user_id == auth_user_id, UserRestCollect.rest_id == Restaurant.google_place_id
-            )
-        ).label('hasCollected'),
-        exists(select(1).where(and_(UserRestLike.user_id == auth_user_id, UserRestLike.rest_id == Restaurant.google_place_id))).label('hasLiked'),
-        exists(select(1).where(and_(UserRestDislike.user_id == auth_user_id, UserRestDislike.rest_id == Restaurant.google_place_id))).label('hasDisliked')
+        func.count(Collects.user_id).label('collectCount'),
+        func.count(Likes.user_id).label('likeCount'),
+        func.count(Dislikes.user_id).label('dislikeCount'),
+        has_collected,
+        has_liked,
+        has_disliked
     ).outerjoin(Collects, Collects.rest_id == Restaurant.google_place_id) \
      .outerjoin(Likes, Likes.rest_id == Restaurant.google_place_id) \
      .outerjoin(Dislikes, Dislikes.rest_id == Restaurant.google_place_id) \
@@ -202,7 +229,10 @@ def uncollect_restaurant(db: Session, user_id: int, place_id: str):
         db.commit()
     map = db.query(Map).filter(Map.author == user_id).first()
     if map:
-        restaurants = map.rest_ids.copy()
+        if isinstance(map.rest_ids, list):
+            restaurants = map.rest_ids.copy()
+        else:
+            restaurants = []
         if place_id in restaurants:
             restaurants.remove(place_id)
             setattr(map, "rest_ids", restaurants)

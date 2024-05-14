@@ -8,12 +8,14 @@ from app.services.places_api import search_nearby_restaurants
 from app.schemas.restaurants import CreateRestaurant
 from app.crud.restaurants import bulk_insert, create_update_restaurant, get_restaurant
 from app.dependencies.db import get_db
+from app.dependencies.redis import get_redis_client
+from app.services.redis_query import need_query_position, need_query_place
 import app.crud.restaurants as crud_rest 
 
 router = APIRouter(prefix="/api/v1/restaurants", tags=["restaurants"])
 
 @router.get("", response_model=PaginatedRestaurantResponse)
-async def get_restaurants(
+def get_restaurants(
     orderBy: str = Query("collectCount", enum=["collectCount", "createTime"]),
     tags: Optional[List[str]] = Query(None),
     offset: int = Query(0, ge=0),
@@ -23,10 +25,11 @@ async def get_restaurants(
     lat: float = Query(25.013686),
     lng: float = Query(121.540535),
     distance: int = Query(1000),
+    sw: Optional[str] = Query(None),
+    ne: Optional[str] = Query(None),
     user: Optional[UserLoginInfo] = Depends(get_optional_user),
     db = Depends(get_db),
-    sw: Optional[str] = Query(None),
-    ne: Optional[str] = Query(None)
+    redis = Depends(get_redis_client)
 ):
     if sw and ne:
         sw = sw.split(",")
@@ -38,9 +41,10 @@ async def get_restaurants(
         lat = (sw_lat + ne_lat) / 2
         lng = (sw_lng + ne_lng) / 2
         
-    nearby_restaurants = search_nearby_restaurants(q, lat, lng)
-    db_restaurants = [CreateRestaurant(**restaurant) for restaurant in nearby_restaurants]
-    bulk_insert(db, db_restaurants)
+    if need_query_position(redis, lat, lng):
+        nearby_restaurants = search_nearby_restaurants(q, lat, lng)
+        db_restaurants = [CreateRestaurant(**restaurant) for restaurant in nearby_restaurants]
+        bulk_insert(db, db_restaurants)
 
     query_params = {
         "orderBy": orderBy,
@@ -67,14 +71,16 @@ async def get_restaurants(
 async def get_single_restaurant(
     place_id: str = Path(...), 
     user: Optional[UserLoginInfo] = Depends(get_optional_user),
-    db = Depends(get_db)
+    db = Depends(get_db),
+    redis = Depends(get_redis_client)
 ):
     try:
         restaurant = await get_place_details(place_id)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     
-    create_update_restaurant(db, restaurant)
+    if need_query_place(redis, place_id):
+        create_update_restaurant(db, restaurant)
     restaurant = get_restaurant(db, place_id, user.userId if user else -1)
     return restaurant
  
