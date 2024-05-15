@@ -21,3 +21,13 @@ def need_query_place(redis, place_id):
         redis.set(key, time.time())
         return True
     return False
+
+def set_token_cache(redis, token, user_id):
+    """Cache the token for 1 hours."""
+    key = f"token:{token}"
+    redis.set(key, user_id, ex=3600)
+
+def get_token_cache(redis, token):
+    """Get the user ID from the token cache."""
+    key = f"token:{token}"
+    return redis.get(key)
