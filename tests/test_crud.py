@@ -29,6 +29,18 @@ class TestUser:
             4
         ],
     )
+    def test_get_user(self, id):
+        user = users.get_user(self.session, id, -1)
+        assert user.id == id
+
+    @pytest.mark.parametrize(
+        ("id"),
+        [
+            1,
+            3,
+            4
+        ],
+    )
     def test_get_user_by_id(self, id):
         user = users.get_user_by_id(self.session, id)
         assert user.user_id == id
@@ -293,18 +305,55 @@ class TestMap:
     @pytest.mark.parametrize(
         ("user", "map_id"),
         [
-            ("pohan.ho@gmail.com", 1)
+            ("pohan.ho@gmail.com", 1),
+            ("pohan.ho@gmail.com", 32498)
         ],
     )
     def test_get_map(self, user, map_id):
         user_id = users.get_user_by_email(self.session, user).user_id
         test_map = maps.get_map(self.session, map_id, user_id)
         answer = self.session.query(Map).filter(Map.map_id == map_id).first()
-        assert answer.author == test_map.authorId
-        assert answer.description == test_map.description
-        assert answer.icon_url == test_map.iconUrl        
-        assert answer.map_name == test_map.name
-        assert answer.view_cnt == test_map.viewCount
+        if test_map != None:
+            assert answer.author == test_map.authorId
+            assert answer.description == test_map.description
+            assert answer.icon_url == test_map.iconUrl        
+            assert answer.map_name == test_map.name
+            assert answer.view_cnt == test_map.viewCount
+        else:
+            assert answer == None
+    
+    @pytest.mark.parametrize(
+        ("query"),
+        [
+            {
+                "auth_user_id": 1,
+                "q": None,
+                "orderBy": "collectCount",
+                "limit": 10, 
+                "offset": 0
+            },
+            {
+                "auth_user_id": 1,
+                "q": None,
+                "orderBy": "createTime",
+                "limit": 10, 
+                "offset": 0
+            },
+            {
+                "auth_user_id": 1,
+                "q": "map",
+                "orderBy": "createTime",
+                "limit": 10, 
+                "offset": 0
+            }
+        ],
+    )
+    def test_get_maps(self, query):
+        mapList = maps.get_maps(self.session, query)
+        if mapList != []:
+            assert mapList[0] != None
+        else:
+            assert mapList == []
 
     @pytest.mark.parametrize(
         ("user", "mapCreate"),
@@ -378,6 +427,16 @@ class TestMap:
             (1,{
                 "orderBy": "name",
                 "q": None,
+                "auth_user_id": 1
+            }),
+            (1,{
+                "orderBy": "rating",
+                "q": None,
+                "auth_user_id": 1
+            }),
+            (1,{
+                "orderBy": "collectCount",
+                "q": "rest",
                 "auth_user_id": 1
             })
         ],
@@ -599,7 +658,8 @@ class TestFollow:
         [
             (1, 3),
             (3, 6),
-            (4, 9)
+            (4, 9),
+            (1, 3)
         ],
     )
     def test_create_follow(self, follower, followee):
@@ -631,15 +691,14 @@ class TestCollection:
         self.session.close()
 
     @pytest.mark.parametrize(
-        ("id"),
+        ("id", "sorted", "q"),
         [
-            1,
-            3,
-            4
+            (1, "created", ""),
+            (1, "collect_cnt", "map")
         ],
     )
-    def test_get_user_map(self, id):
-        map_list = collections.get_user_map(self.session, id, "created", 0, 10, "")
+    def test_get_user_map(self, id, sorted, q):
+        map_list = collections.get_user_map(self.session, id, sorted, 0, 10, q)
         if len(map_list) != 0:
             test_map = map_list[0]
             answer = maps.get_map(self.session, test_map.id, id)
@@ -657,15 +716,14 @@ class TestCollection:
             assert map_list == []
 
     @pytest.mark.parametrize(
-        ("id"),
+        ("id", "sorted", "q"),
         [
-            1,
-            3,
-            4
+            (1, "created", ""),
+            (1, "collect_cnt", "rest")
         ],
     )
-    def test_get_user_rest(self, id):
-        rest_list = collections.get_user_rest(self.session, id, "created", 0, 10, "")
+    def test_get_user_rest(self, id, sorted, q):
+        rest_list = collections.get_user_rest(self.session, id, sorted, 0, 10, q)
         if len(rest_list) != 0:
             test_rest = rest_list[0]
             answer = restaurants.get_restaurant(self.session, test_rest.placeId, id)
@@ -684,15 +742,14 @@ class TestCollection:
             assert rest_list == []
 
     @pytest.mark.parametrize(
-        ("id"),
+        ("id", "q"),
         [
-            1,
-            3,
-            4
+            (1, ""),
+            (1, "diary")
         ],
     )
-    def test_get_user_diary(self, id):
-        diary_list = collections.get_user_diary(self.session, id, 0, 10, "")
+    def test_get_user_diary(self, id, q):
+        diary_list = collections.get_user_diary(self.session, id, 0, 10, q)
         if len(diary_list) != 0:
             test_diary = diary_list[0]
             answer = diaries.get_diary(self.session, test_diary.id, id)
