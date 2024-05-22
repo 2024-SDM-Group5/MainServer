@@ -78,7 +78,8 @@ def create_map(db: Session, map_data: MapCreate, user: UserLoginInfo) -> Map:
         icon_url=map_data.iconUrl,
         author=user.userId,  
         tags=map_data.tags,
-        rest_ids=map_data.restaurants 
+        rest_ids=map_data.restaurants,
+        description=map_data.description
     )
     try:
         db.add(db_map)
