@@ -499,7 +499,24 @@ class TestDiaryComment:
         assert answer.photos == test_diary.photos
         assert answer.content == test_diary.content
         assert answer.items == test_diary.items
-    
+
+    @pytest.mark.parametrize(
+        ("user", "diary"),
+        [
+            ("pohan.ho@gmail.com", 
+             DiaryCreate(
+                 restaurantId="ChIJycu5coupQjQRl9dmANfpHuw",
+                 photos=[],
+                 content="test_content",
+                 items=["test_items"]
+             ))
+        ],
+    )
+    def test_create_diary_error(self, user, diary):
+        with pytest.raises(Exception):
+            user_id = users.get_user_by_email(self.session, user).user_id
+            test_diary = diaries.create_diary(self.session, diary, user_id)
+        
     @pytest.mark.parametrize(
         ("user", "rest_id"),
         [
@@ -522,6 +539,55 @@ class TestDiaryComment:
         assert get_diary.collectCount == self.session.query(UserDiaryCollect).filter(UserDiaryCollect.diary_id == get_diary.id).count()
     
     @pytest.mark.parametrize(
+        ("user", "diary_id"),
+        [
+            ("pohan.ho@gmail.com", "34567")
+        ],
+    )
+    def test_get_diary_error(self, user, diary_id):
+        with pytest.raises(Exception):
+            user_id = users.get_user_by_email(self.session, user).user_id
+            get_diary = diaries.get_diary(self.session, diary_id, user_id)
+    
+    @pytest.mark.parametrize(
+        ("user_id","query"),
+        [
+            (1,
+             {
+                "q": None,
+                "orderBy": "collectCount",
+                "limit": 10, 
+                "offset": 0,
+                "following": True
+            }),
+            (1,
+             {
+                "auth_user_id": 1,
+                "q": None,
+                "orderBy": "collectCount",
+                "limit": 10, 
+                "offset": 0,
+                "following": False
+            }),
+            (1, 
+             {
+                "auth_user_id": 1,
+                "q": "Diary",
+                "orderBy": "createTime",
+                "limit": 10, 
+                "offset": 0,
+                "following": False
+            })
+        ],
+    )
+    def test_get_diaries(self, user_id, query):
+        diaryList = diaries.get_diaries(self.session, user_id, query)
+        if diaryList != []:
+            assert diaryList[0] != None
+        else:
+            assert diaryList == []
+
+    @pytest.mark.parametrize(
         ("user", "rest_id", "update"),
         [
             ("pohan.ho@gmail.com", "ChIJycu5coupQjQRl9dmANfpHuw",
@@ -540,6 +606,36 @@ class TestDiaryComment:
         assert update_diary.content == answer.content
         assert update_diary.photos == answer.photos
         assert update_diary.items == answer.items
+
+    @pytest.mark.parametrize(
+        ("user", "rest_id", "update", "ctrl"),
+        [
+            ("pohan.ho@gmail.com", "ChIJycu5coupQjQRl9dmANfpHuw",
+             DiaryUpdate(
+                 photos=["https://update_photo/"],
+                 content="update_content",
+                 items=["update_items"]
+             ),
+             "no_diary"),
+             ("claire32246223@gmail.com", "ChIJycu5coupQjQRl9dmANfpHuw",
+             DiaryUpdate(
+                 photos=["https://update_photo/"],
+                 content="update_content",
+                 items=["update_items"]
+             ),
+             "auth_error")
+        ],
+    )
+    def test_update_diary_error(self, user, rest_id, update, ctrl):
+        if ctrl == "no_diary":
+            with pytest.raises(Exception):
+                user_id = users.get_user_by_email(self.session, user).user_id
+                update_diary = diaries.update_diary(self.session, 20349, user_id, update)
+        else:
+            with pytest.raises(Exception):
+                user_id = users.get_user_by_email(self.session, user).user_id
+                diary_id = self.session.query(Diary).filter(Diary.user_id == 1, Diary.rest_id == rest_id).first().diary_id
+                update_diary = diaries.update_diary(self.session, diary_id, user_id, update)
     
     @pytest.mark.parametrize(
         ("user", "rest_id", "content"),
@@ -587,6 +683,7 @@ class TestDiaryComment:
     @pytest.mark.parametrize(
         ("user", "rest_id"),
         [
+            ("pohan.ho@gmail.com", "ChIJycu5coupQjQRl9dmANfpHuw"),
             ("pohan.ho@gmail.com", "ChIJycu5coupQjQRl9dmANfpHuw")
         ],
     )
@@ -611,6 +708,7 @@ class TestDiaryComment:
     @pytest.mark.parametrize(
         ("user", "rest_id"),
         [
+            ("pohan.ho@gmail.com", "ChIJycu5coupQjQRl9dmANfpHuw"),
             ("pohan.ho@gmail.com", "ChIJycu5coupQjQRl9dmANfpHuw")
         ],
     )
@@ -631,6 +729,18 @@ class TestDiaryComment:
         diary_id = self.session.query(Diary).filter(Diary.user_id == user_id, Diary.rest_id == rest_id).first().diary_id
         unfavorite = diaries.unfavorite_diary(self.session, user_id, diary_id)
         assert self.session.query(UserDiaryLike).filter(UserDiaryLike.user_id == user_id, UserDiaryLike.diary_id == diary_id).first() is None
+
+    @pytest.mark.parametrize(
+        ("user"),
+        [
+            "pohan.ho@gmail.com"
+        ],
+    )
+    def test_recommend_diary(self, user):
+        user_id = users.get_user_by_email(self.session, user).user_id
+        diary_list = diaries.recommend_diary(self.session, user_id)
+        answer = self.session.query(Diary).filter(Diary.user_id == user_id, Diary.rest_id == diary_list[0][0]).first()
+        assert answer is not None
 
     @pytest.mark.parametrize(
         ("user", "rest_id"),
