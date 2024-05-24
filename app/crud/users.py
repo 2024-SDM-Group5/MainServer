@@ -81,8 +81,10 @@ def update_user(db: Session, user_id: int, updates: dict) -> User:
     return user
 
 def delete_user(db: Session, user_id: int):
-    user = db.query(User).filter(User.id == user_id).first()
+    user = db.query(User).filter(User.user_id == user_id).first()
     if user:
+        user_map = db.query(Map).filter(Map.author == user_id).first()
+        db.delete(user_map)
         db.delete(user)
         db.commit()
 

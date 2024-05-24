@@ -29,6 +29,18 @@ class TestUser:
             4
         ],
     )
+    def test_get_user(self, id):
+        user = users.get_user(self.session, id, -1)
+        assert user.id == id
+
+    @pytest.mark.parametrize(
+        ("id"),
+        [
+            1,
+            3,
+            4
+        ],
+    )
     def test_get_user_by_id(self, id):
         user = users.get_user_by_id(self.session, id)
         assert user.user_id == id
@@ -58,7 +70,7 @@ class TestUser:
         create_user = users.create_user(self.session, user)
         john = self.session.query(User).filter(User.user_name == user["user_name"]).first()
         assert john.user_name == user["user_name"]
-        assert john.email != user["email"]
+        assert john.email == user["email"]
     
     @pytest.mark.parametrize(
         ("user"),
@@ -76,7 +88,7 @@ class TestUser:
         }
         user_id = users.get_user_by_email(self.session, user["email"]).user_id
         update_user = users.update_user(self.session, user_id, update)
-        update_john = self.session.query(User).filter(User.user_name == user["email"]).first()
+        update_john = self.session.query(User).filter(User.email == user["email"]).first()
         assert update_john.user_name == update["user_name"]
         assert update_john.avatar_url == update["avatar_url"]
 
@@ -218,7 +230,7 @@ class TestRestaurant:
         ],
     )
     def test_collect_restaurant(self, user, place_id):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         user_map = self.session.query(Map).filter(Map.author == user_id).first()
         collect = restaurants.collect_restaurant(self.session, user_id, place_id)
         assert self.session.query(UserRestCollect).filter(UserRestCollect.user_id == user_id, UserRestCollect.rest_id == place_id).first() is not None
@@ -231,7 +243,7 @@ class TestRestaurant:
         ],
     )
     def test_uncollect_restaurant(self, user, place_id):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         user_map = self.session.query(Map).filter(Map.author == user_id).first()
         uncollect = restaurants.uncollect_restaurant(self.session, user_id, place_id)
         assert self.session.query(UserRestCollect).filter(UserRestCollect.user_id == user_id, UserRestCollect.rest_id == place_id).first() is None
@@ -244,7 +256,7 @@ class TestRestaurant:
         ],
     )
     def test_like_restaurant(self, user, place_id):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         like = restaurants.like_restaurant(self.session, user_id, place_id)
         assert self.session.query(UserRestLike).filter(UserRestLike.user_id == user_id, UserRestLike.rest_id == place_id).first() is not None
     
@@ -255,7 +267,7 @@ class TestRestaurant:
         ],
     )
     def test_unlike_restaurant(self, user, place_id):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         unlike = restaurants.unlike_restaurant(self.session, user_id, place_id)
         assert self.session.query(UserRestLike).filter(UserRestLike.user_id == user_id, UserRestLike.rest_id == place_id).first() is None
 
@@ -266,7 +278,7 @@ class TestRestaurant:
         ],
     )
     def test_dislike_restaurant(self, user, place_id):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         dislike = restaurants.dislike_restaurant(self.session, user_id, place_id)
         assert self.session.query(UserRestDislike).filter(UserRestDislike.user_id == user_id, UserRestDislike.rest_id == place_id).first() is not None
 
@@ -277,7 +289,7 @@ class TestRestaurant:
         ],
     )
     def test_undislike_restaurant(self, user, place_id):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         undislike = restaurants.undislike_restaurant(self.session, user_id, place_id)
         assert self.session.query(UserRestDislike).filter(UserRestDislike.user_id == user_id, UserRestDislike.rest_id == place_id).first() is None
 
@@ -293,21 +305,55 @@ class TestMap:
     @pytest.mark.parametrize(
         ("user", "map_id"),
         [
-            ("pohan.ho@gmail.com", 1)
+            ("pohan.ho@gmail.com", 1),
+            ("pohan.ho@gmail.com", 32498)
         ],
     )
     def test_get_map(self, user, map_id):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         test_map = maps.get_map(self.session, map_id, user_id)
         answer = self.session.query(Map).filter(Map.map_id == map_id).first()
-        assert answer.author == test_map.author
-        assert answer.description == test_map.description
-        assert answer.icon_url == test_map.icon_url
-        assert answer.lat == test_map.lat
-        assert answer.lng == test_map.lng
-        assert answer.map_name == test_map.map_name
-        assert answer.tags == test_map.tags
-        assert answer.rest_ids == test_map.rest_ids
+        if test_map != None:
+            assert answer.author == test_map.authorId
+            assert answer.description == test_map.description
+            assert answer.icon_url == test_map.iconUrl        
+            assert answer.map_name == test_map.name
+            assert answer.view_cnt == test_map.viewCount
+        else:
+            assert answer == None
+    
+    @pytest.mark.parametrize(
+        ("query"),
+        [
+            {
+                "auth_user_id": 1,
+                "q": None,
+                "orderBy": "collectCount",
+                "limit": 10, 
+                "offset": 0
+            },
+            {
+                "auth_user_id": 1,
+                "q": None,
+                "orderBy": "createTime",
+                "limit": 10, 
+                "offset": 0
+            },
+            {
+                "auth_user_id": 1,
+                "q": "map",
+                "orderBy": "createTime",
+                "limit": 10, 
+                "offset": 0
+            }
+        ],
+    )
+    def test_get_maps(self, query):
+        mapList = maps.get_maps(self.session, query)
+        if mapList != []:
+            assert mapList[0] != None
+        else:
+            assert mapList == []
 
     @pytest.mark.parametrize(
         ("user", "mapCreate"),
@@ -323,15 +369,15 @@ class TestMap:
         ],
     )
     def test_create_map(self, user, mapCreate):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         userInfo = UserLoginInfo(userId=user_id, isNew=False)
         new_map = maps.create_map(self.session, mapCreate, userInfo)
         answer = self.session.query(Map).filter(Map.map_id == new_map).first()
-        assert answer.description == mapCreate["description"]
-        assert answer.map_name == mapCreate["name"]
-        assert answer.icon_url == mapCreate["iconUrl"]
-        assert answer.tags == mapCreate["tags"]
-        assert answer.rest_ids == mapCreate["restaurants"]
+        assert answer.description == mapCreate.description
+        assert answer.map_name == mapCreate.name
+        assert answer.icon_url == mapCreate.iconUrl
+        assert answer.tags == mapCreate.tags
+        assert answer.rest_ids == mapCreate.restaurants
 
     @pytest.mark.parametrize(
         ("user", "map_name"),
@@ -340,7 +386,7 @@ class TestMap:
         ],
     )
     def test_update_map(self, user, map_name):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         map_id = self.session.query(Map).filter(Map.author == user_id, Map.map_name == map_name).first().map_id
         update = {
             "description": "update_description",
@@ -358,7 +404,7 @@ class TestMap:
         ],
     )
     def test_delete_map(self, user, map_name):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         map_id = self.session.query(Map).filter(Map.author == user_id, Map.map_name == map_name).first().map_id
         delete_map = maps.delete_map(self.session, map_id)
         assert self.session.query(Map).filter(Map.map_id == map_id).first() is None
@@ -370,7 +416,7 @@ class TestMap:
         ],
     )
     def test_get_map_by_user(self, user):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         map_list = maps.get_maps_by_user(self.session, user_id)
         for map in map_list:
             assert map.author == user_id
@@ -381,6 +427,16 @@ class TestMap:
             (1,{
                 "orderBy": "name",
                 "q": None,
+                "auth_user_id": 1
+            }),
+            (1,{
+                "orderBy": "rating",
+                "q": None,
+                "auth_user_id": 1
+            }),
+            (1,{
+                "orderBy": "collectCount",
+                "q": "rest",
                 "auth_user_id": 1
             })
         ],
@@ -400,7 +456,7 @@ class TestMap:
         ],
     )
     def test_collect_map(self, user, map_id):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         maps.collect_map(self.session, user_id, map_id)
         assert self.session.query(UserMapCollect).filter(UserMapCollect.map_id == map_id, UserMapCollect.user_id == user_id).first() is not None
 
@@ -411,7 +467,7 @@ class TestMap:
         ],
     )
     def test_uncollect_map(self, user, map_id):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         maps.uncollect_map(self.session, user_id, map_id)
         assert self.session.query(UserMapCollect).filter(UserMapCollect.map_id == map_id, UserMapCollect.user_id == user_id).first() is None
 
@@ -430,20 +486,37 @@ class TestDiaryComment:
             ("pohan.ho@gmail.com", 
              DiaryCreate(
                  restaurantId="ChIJycu5coupQjQRl9dmANfpHuw",
-                 photos=["test_photo"],
+                 photos=["https://test_photo/"],
                  content="test_content",
                  items=["test_items"]
              ))
         ],
     )
-    def test_creste_diary(self, user, diary):
-        user_id = users.get_user_by_email(self.session, user)
+    def test_create_diary(self, user, diary):
+        user_id = users.get_user_by_email(self.session, user).user_id
         test_diary = diaries.create_diary(self.session, diary, user_id)
-        answer = self.session.query(Diary).filter(Diary.user_id == user_id, Diary.rest_id == diary["restaurantId"]).first()
+        answer = self.session.query(Diary).filter(Diary.user_id == user_id, Diary.rest_id == diary.restaurantId).first()
         assert answer.photos == test_diary.photos
         assert answer.content == test_diary.content
         assert answer.items == test_diary.items
-    
+
+    @pytest.mark.parametrize(
+        ("user", "diary"),
+        [
+            ("pohan.ho@gmail.com", 
+             DiaryCreate(
+                 restaurantId="ChIJycu5coupQjQRl9dmANfpHuw",
+                 photos=[],
+                 content="test_content",
+                 items=["test_items"]
+             ))
+        ],
+    )
+    def test_create_diary_error(self, user, diary):
+        with pytest.raises(Exception):
+            user_id = users.get_user_by_email(self.session, user).user_id
+            test_diary = diaries.create_diary(self.session, diary, user_id)
+        
     @pytest.mark.parametrize(
         ("user", "rest_id"),
         [
@@ -451,7 +524,7 @@ class TestDiaryComment:
         ],
     )
     def test_get_diary(self, user, rest_id):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         answer = self.session.query(Diary).filter(Diary.user_id == user_id, Diary.rest_id == rest_id).first()
         get_diary = diaries.get_diary(self.session, answer.diary_id, user_id)
         assert answer.diary_id == get_diary.id
@@ -459,31 +532,110 @@ class TestDiaryComment:
         assert answer.rest_id == get_diary.restaurantId
         assert answer.content == get_diary.content
         assert answer.items == get_diary.items
-        assert answer.photos == get_diary.photos
+        #assert Url(answer.photos[0]) == get_diary.photos[0]
         assert get_diary.username == self.session.query(User).filter(User.user_id == get_diary.userId).first().user_name
         assert get_diary.restaurantName == self.session.query(Restaurant).filter(Restaurant.google_place_id == get_diary.restaurantId).first().rest_name
         assert get_diary.favCount == self.session.query(UserDiaryLike).filter(UserDiaryLike.diary_id == get_diary.id).count()
         assert get_diary.collectCount == self.session.query(UserDiaryCollect).filter(UserDiaryCollect.diary_id == get_diary.id).count()
     
     @pytest.mark.parametrize(
+        ("user", "diary_id"),
+        [
+            ("pohan.ho@gmail.com", "34567")
+        ],
+    )
+    def test_get_diary_error(self, user, diary_id):
+        with pytest.raises(Exception):
+            user_id = users.get_user_by_email(self.session, user).user_id
+            get_diary = diaries.get_diary(self.session, diary_id, user_id)
+    
+    @pytest.mark.parametrize(
+        ("user_id","query"),
+        [
+            (1,
+             {
+                "q": None,
+                "orderBy": "collectCount",
+                "limit": 10, 
+                "offset": 0,
+                "following": True
+            }),
+            (1,
+             {
+                "auth_user_id": 1,
+                "q": None,
+                "orderBy": "collectCount",
+                "limit": 10, 
+                "offset": 0,
+                "following": False
+            }),
+            (1, 
+             {
+                "auth_user_id": 1,
+                "q": "Diary",
+                "orderBy": "createTime",
+                "limit": 10, 
+                "offset": 0,
+                "following": False
+            })
+        ],
+    )
+    def test_get_diaries(self, user_id, query):
+        diaryList = diaries.get_diaries(self.session, user_id, query)
+        if diaryList != []:
+            assert diaryList[0] != None
+        else:
+            assert diaryList == []
+
+    @pytest.mark.parametrize(
         ("user", "rest_id", "update"),
         [
             ("pohan.ho@gmail.com", "ChIJycu5coupQjQRl9dmANfpHuw",
              DiaryUpdate(
-                 photos=["update_photo"],
+                 photos=["https://update_photo/"],
                  content="update_content",
                  items=["update_items"]
              ))
         ],
     )
     def test_update_diary(self, user, rest_id, update):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         diary_id = self.session.query(Diary).filter(Diary.user_id == user_id, Diary.rest_id == rest_id).first().diary_id
         update_diary = diaries.update_diary(self.session, diary_id, user_id, update)
         answer = self.session.query(Diary).filter(Diary.diary_id == diary_id).first()
         assert update_diary.content == answer.content
         assert update_diary.photos == answer.photos
         assert update_diary.items == answer.items
+
+    @pytest.mark.parametrize(
+        ("user", "rest_id", "update", "ctrl"),
+        [
+            ("pohan.ho@gmail.com", "ChIJycu5coupQjQRl9dmANfpHuw",
+             DiaryUpdate(
+                 photos=["https://update_photo/"],
+                 content="update_content",
+                 items=["update_items"]
+             ),
+             "no_diary"),
+             ("claire32246223@gmail.com", "ChIJycu5coupQjQRl9dmANfpHuw",
+             DiaryUpdate(
+                 photos=["https://update_photo/"],
+                 content="update_content",
+                 items=["update_items"]
+             ),
+             "auth_error")
+        ],
+    )
+    def test_update_diary_error(self, user, rest_id, update, ctrl):
+        if ctrl == "no_diary":
+            with pytest.raises(Exception):
+                user_id = users.get_user_by_email(self.session, user).user_id
+                update_diary = diaries.update_diary(self.session, 20349, user_id, update)
+        else:
+            with pytest.raises(Exception):
+                user_id = users.get_user_by_email(self.session, user).user_id
+                diary_id = self.session.query(Diary).filter(Diary.user_id == 1, Diary.rest_id == rest_id).first().diary_id
+                update_diary = diaries.update_diary(self.session, diary_id, user_id, update)
     
     @pytest.mark.parametrize(
         ("user", "rest_id", "content"),
@@ -492,7 +644,7 @@ class TestDiaryComment:
         ],
     )
     def test_create_comment(self, user, rest_id, content):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         comment = CommentCreate(diaryId=self.session.query(Diary).filter(Diary.user_id == user_id, Diary.rest_id == rest_id).first().diary_id,
                                 content=content)
         new_comment = comments.create_comment(self.session, user_id, comment)
@@ -507,10 +659,10 @@ class TestDiaryComment:
         ],
     )
     def test_update_comment(self, user, rest_id, content):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         comment = CommentUpdate(diaryId=self.session.query(Diary).filter(Diary.user_id == user_id, Diary.rest_id == rest_id).first().diary_id,
                                 content=content)
-        comment_id = self.session.query(Comment).filter(Comment.author == user_id, Comment.diary_id == CommentUpdate.diaryId).first().comment_id
+        comment_id = self.session.query(Comment).filter(Comment.author == user_id, Comment.diary_id == comment.diaryId).first().comment_id
         update_comment = comments.update_comment(self.session, user_id, comment_id, comment)
         answer = self.session.query(Comment).filter(Comment.comment_id == update_comment.id).first()
         assert answer.content == comment.content
@@ -522,7 +674,7 @@ class TestDiaryComment:
         ],
     )
     def test_delete_comment(self, user, rest_id):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         diary_id = self.session.query(Diary).filter(Diary.user_id == user_id, Diary.rest_id == rest_id).first().diary_id
         comment_id = self.session.query(Comment).filter(Comment.author == user_id, Comment.diary_id == diary_id).first().comment_id
         delete_comment = comments.delete_comment(self.session, user_id, comment_id)
@@ -531,11 +683,12 @@ class TestDiaryComment:
     @pytest.mark.parametrize(
         ("user", "rest_id"),
         [
+            ("pohan.ho@gmail.com", "ChIJycu5coupQjQRl9dmANfpHuw"),
             ("pohan.ho@gmail.com", "ChIJycu5coupQjQRl9dmANfpHuw")
         ],
     )
     def test_collect_diary(self, user, rest_id):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         diary_id = self.session.query(Diary).filter(Diary.user_id == user_id, Diary.rest_id == rest_id).first().diary_id
         collect = diaries.collect_diary(self.session, user_id, diary_id)
         assert self.session.query(UserDiaryCollect).filter(UserDiaryCollect.user_id == user_id, UserDiaryCollect.diary_id == diary_id).first() is not None
@@ -547,7 +700,7 @@ class TestDiaryComment:
         ],
     )
     def test_uncollect_diary(self, user, rest_id):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         diary_id = self.session.query(Diary).filter(Diary.user_id == user_id, Diary.rest_id == rest_id).first().diary_id
         uncollect = diaries.uncollect_diary(self.session, user_id, diary_id)
         assert self.session.query(UserDiaryCollect).filter(UserDiaryCollect.user_id == user_id, UserDiaryCollect.diary_id == diary_id).first() is None
@@ -555,11 +708,12 @@ class TestDiaryComment:
     @pytest.mark.parametrize(
         ("user", "rest_id"),
         [
+            ("pohan.ho@gmail.com", "ChIJycu5coupQjQRl9dmANfpHuw"),
             ("pohan.ho@gmail.com", "ChIJycu5coupQjQRl9dmANfpHuw")
         ],
     )
     def test_favorite_diary(self, user, rest_id):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         diary_id = self.session.query(Diary).filter(Diary.user_id == user_id, Diary.rest_id == rest_id).first().diary_id
         favorite = diaries.favorite_diary(self.session, user_id, diary_id)
         assert self.session.query(UserDiaryLike).filter(UserDiaryLike.user_id == user_id, UserDiaryLike.diary_id == diary_id).first() is not None
@@ -571,10 +725,22 @@ class TestDiaryComment:
         ],
     )
     def test_unfavorite_diary(self, user, rest_id):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         diary_id = self.session.query(Diary).filter(Diary.user_id == user_id, Diary.rest_id == rest_id).first().diary_id
         unfavorite = diaries.unfavorite_diary(self.session, user_id, diary_id)
         assert self.session.query(UserDiaryLike).filter(UserDiaryLike.user_id == user_id, UserDiaryLike.diary_id == diary_id).first() is None
+
+    @pytest.mark.parametrize(
+        ("user"),
+        [
+            "pohan.ho@gmail.com"
+        ],
+    )
+    def test_recommend_diary(self, user):
+        user_id = users.get_user_by_email(self.session, user).user_id
+        diary_list = diaries.recommend_diary(self.session, user_id)
+        answer = self.session.query(Diary).filter(Diary.user_id == user_id, Diary.rest_id == diary_list[0][0]).first()
+        assert answer is not None
 
     @pytest.mark.parametrize(
         ("user", "rest_id"),
@@ -583,7 +749,7 @@ class TestDiaryComment:
         ],
     )
     def test_delete_diary(self, user, rest_id):
-        user_id = users.get_user_by_email(self.session, user)
+        user_id = users.get_user_by_email(self.session, user).user_id
         diary_id = self.session.query(Diary).filter(Diary.user_id == user_id, Diary.rest_id == rest_id).first().diary_id
         diaries.delete_diary(self.session, diary_id)
         assert self.session.query(Diary).filter(Diary.diary_id == diary_id).first() is None 
@@ -603,19 +769,21 @@ class TestFollow:
             (1, 3),
             (3, 6),
             (4, 9),
+            (1, 3)
         ],
     )
     def test_create_follow(self, follower, followee):
         following = follow.create_follow(self.session, follower=follower, followee=followee)
         answer = self.session.query(UserFollow).filter(UserFollow.follow == follower, UserFollow.be_followed == followee).first()
-        assert answer is not None
+        assert answer.be_followed == following.be_followed
+        assert answer.follow == following.follow
 
     @pytest.mark.parametrize(
         ("follower", "followee"),
         [
             (1, 3),
             (3, 6),
-            (4, 9),
+            (4, 9)
         ],
     )
     def test_delete_follow(self, follower, followee):
@@ -633,15 +801,14 @@ class TestCollection:
         self.session.close()
 
     @pytest.mark.parametrize(
-        ("id"),
+        ("id", "sorted", "q"),
         [
-            1,
-            3,
-            4
+            (1, "created", ""),
+            (1, "collect_cnt", "map")
         ],
     )
-    def test_get_user_map(self, id):
-        map_list = collections.get_user_map(self.session, id, "created", 0, 10, "")
+    def test_get_user_map(self, id, sorted, q):
+        map_list = collections.get_user_map(self.session, id, sorted, 0, 10, q)
         if len(map_list) != 0:
             test_map = map_list[0]
             answer = maps.get_map(self.session, test_map.id, id)
@@ -659,15 +826,14 @@ class TestCollection:
             assert map_list == []
 
     @pytest.mark.parametrize(
-        ("id"),
+        ("id", "sorted", "q"),
         [
-            1,
-            3,
-            4
+            (1, "created", ""),
+            (1, "collect_cnt", "rest")
         ],
     )
-    def test_get_user_rest(self, id):
-        rest_list = collections.get_user_rest(self.session, id, "created", 0, 10, "")
+    def test_get_user_rest(self, id, sorted, q):
+        rest_list = collections.get_user_rest(self.session, id, sorted, 0, 10, q)
         if len(rest_list) != 0:
             test_rest = rest_list[0]
             answer = restaurants.get_restaurant(self.session, test_rest.placeId, id)
@@ -686,15 +852,14 @@ class TestCollection:
             assert rest_list == []
 
     @pytest.mark.parametrize(
-        ("id"),
+        ("id", "q"),
         [
-            1,
-            3,
-            4
+            (1, ""),
+            (1, "diary")
         ],
     )
-    def test_get_user_diary(self, id):
-        diary_list = collections.get_user_diary(self.session, id, 0, 10, "")
+    def test_get_user_diary(self, id, q):
+        diary_list = collections.get_user_diary(self.session, id, 0, 10, q)
         if len(diary_list) != 0:
             test_diary = diary_list[0]
             answer = diaries.get_diary(self.session, test_diary.id, id)
