@@ -5,7 +5,7 @@ def get_redis_key(lat, lng):
     return f"query:{round(lat, 2)}:{round(lng, 2)}"
 
 def need_query_position(redis, lat, lng):
-    """Check if the coordinates have been queried in the last hour."""
+    """Check if the coordinates have been queried in the last day."""
     key = get_redis_key(lat, lng)
     last_queried = redis.get(key)
     if last_queried is None or (time.time() - float(last_queried)) > 86400:
@@ -14,7 +14,7 @@ def need_query_position(redis, lat, lng):
     return False
 
 def need_query_place(redis, place_id):
-    """Check if the place has been queried in the last hour."""
+    """Check if the place has been queried in the last day."""
     key = f"query:{place_id}"
     last_queried = redis.get(key)
     if last_queried is None or (time.time() - float(last_queried)) > 86400:
