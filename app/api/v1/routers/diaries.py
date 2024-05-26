@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api/v1/diaries", tags=["diaries"])
 
 @router.get("", response_model=List[SimplifiedDiary])
 async def get_diaries(
-    orderBy: str = Query("collectCount", enum=["collectCount", "createTime"]),
+    orderBy: str = Query("createTime", enum=["collectCount", "createTime"]),
     tags: Optional[List[str]] = Query(None),
     offset: int = Query(0, ge=0),
     limit: int = Query(10, ge=1, le=100),

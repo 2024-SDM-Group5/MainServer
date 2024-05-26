@@ -30,7 +30,6 @@ def base_query(auth_user_id: int, order_by: str = None):
      .outerjoin(Dislikes, Dislikes.rest_id == Restaurant.google_place_id) \
      .group_by(Restaurant.google_place_id)
     
-    print(stmt)
     if order_by:
         if order_by == "rating":
             stmt = stmt.order_by(Restaurant.rating.desc())
