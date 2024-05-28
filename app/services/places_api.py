@@ -46,7 +46,7 @@ def search_nearby_restaurants(keyword, lat, lng, radius=1000):
         'keyword': keyword,
         'language': 'zh-TW',
         'location': f'{lat},{lng}',
-        'radius': 2000 if keyword else radius,
+        'radius': 1000 if keyword else radius,
         'type': 'restaurant',
         'key': api_key,
         'opennow': True,
