@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session, aliased
 from sqlalchemy import desc, asc, select, func, select, distinct, exists
 from app.models.dbModel import Diary, UserDiaryCollect, UserDiaryLike, Restaurant, UserFollow, User, Comment
 from app.schemas.diaries import DiaryCreate, DiaryUpdate, SimplifiedDiary, DiaryDisplay, Reply
+from sqlalchemy.sql import text
 from typing import List
 from fastapi import HTTPException
 
@@ -139,8 +140,8 @@ def update_diary(db: Session, diary_id: int, user_id: int, updates: DiaryUpdate)
 
 def delete_diary(db: Session, diary_id: int, user_id: int):
     diary = db.query(Diary).filter(Diary.diary_id == diary_id).first()
-    if diary.user_id != user_id:
-        raise HTTPException(status_code=403, detail="You are not authorized to delete this diary")
+    # if diary.user_id != user_id:
+    #     raise HTTPException(status_code=403, detail="You are not authorized to delete this diary")
     if diary:
         db.delete(diary)
         db.commit()

@@ -16,7 +16,7 @@ class DiaryDisplay(BaseModel):
     avatarUrl: str = Field(None)
     restaurantId: str
     restaurantName: str
-    photos: list[HttpUrl]
+    photos: list[str]
     content: str
     replies: list[Reply] = [] 
     items: list[str] = []
