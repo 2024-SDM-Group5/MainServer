@@ -139,6 +139,8 @@ def update_diary(db: Session, diary_id: int, user_id: int, updates: DiaryUpdate)
 
 def delete_diary(db: Session, diary_id: int, user_id: int):
     diary = db.query(Diary).filter(Diary.diary_id == diary_id).first()
+    if diary.user_id != user_id:
+        raise HTTPException(status_code=403, detail="You are not authorized to delete this diary")
     if diary:
         db.delete(diary)
         db.commit()
