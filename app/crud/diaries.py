@@ -137,7 +137,7 @@ def update_diary(db: Session, diary_id: int, user_id: int, updates: DiaryUpdate)
         db.refresh(diary)
     return diary
 
-def delete_diary(db: Session, diary_id: int):
+def delete_diary(db: Session, diary_id: int, user_id: int):
     diary = db.query(Diary).filter(Diary.diary_id == diary_id).first()
     if diary:
         db.delete(diary)
