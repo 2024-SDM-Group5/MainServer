@@ -70,7 +70,7 @@ class DiaryResponse(BaseModel):
 
 class SimplifiedDiary(BaseModel):
     id: int
-    imageUrl: HttpUrl
+    imageUrl: str
     restaurantName: str
 
 SimplifiedDiary_Ex = [
